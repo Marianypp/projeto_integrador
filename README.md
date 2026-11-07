@@ -97,40 +97,28 @@
 
 # Diagrama ER – DevLab Project API
 
-## Entidades e Relacionamentos
+## Entidades
 
-### Projeto
-| Campo             | Tipo      | Descrição                                |
-| ----------------- | --------- | ---------------------------------------- |
-| id                | PK (int)  | Identificador único do projeto           |
-| titulo            | CharField | Nome do projeto                          |
-| descricao         | TextField | Descrição detalhada                      |
-| cliente           | CharField | Cliente responsável                      |
-| status            | CharField | Status (planejado, andamento, concluído) |
-| data_inicio       | DateField | Data de início                           |
-| data_fim_prevista | DateField | Data prevista de término                 |
-
----
-
-### Equipe
-| Campo      | Tipo      | Descrição                         |
-| ---------- | --------- | --------------------------------- |
-| id         | PK (int)  | Identificador único da equipe     |
-| nome       | CharField | Nome da equipe                    |
-| descricao  | TextField | Descrição da equipe               |
-| projeto_id | FK (int)  | Chave estrangeira → Projeto (1:N) |
-| lider_id   | OneToOne  | Chave única → User (1:1)          |
+### Cliente
+| Campo             | Tipo      | Descrição                                           |
+| ----------------- | --------- | --------------------------------------------------- |
+| id_cliente        | PK (int)  | Identificador único do cliente                      |
+| razao_social      | CharField | Nome oficial de registro                            |
+| cnpj              | CharField | Número de identificação oficial                     |
+| telefone          | CharField | Linha de contato                                    |
+| email             | CharField | Endereço eletrônico personalizado                   |
+| bairro            | CharField | Endereço físico                                     |
+| cep               | CharField | Código numérico correspondente ao endereço físico   |
+| data_cadastro     | DateField | Data de início do vínculo                           |
+| vendedor_id       | FK (int)  | Identificador único do vendedor                     |
 
 ---
 
-### User
-| Campo    | Tipo       | Descrição                      |
-| -------- | ---------- | ------------------------------ |
-| id       | PK (int)   | Identificador único do usuário |
-| username | CharField  | Nome de login                  |
-| email    | EmailField | Email do usuário               |
-| password | CharField  | Senha (hash)                   |
-
+### Vendedor
+| Campo         | Tipo      | Descrição                         |
+| ------------- | --------- | --------------------------------- |
+| id_vendedor   | PK (int)  | Identificador único do vendedor   |
+| nome_vendedor | CharField | Nome do vendedor                  |
 
 
 
@@ -141,14 +129,8 @@
 
 ## 🔗 Relacionamentos
 
-- **Projeto (1) ↔ (N) Equipe**  
-  Um projeto pode ter várias equipes, mas cada equipe pertence a um único projeto.
-
-- **Equipe (N) ↔ (N) User (membros)**  
-  Uma equipe pode ter vários membros, e um usuário pode participar de várias equipes.
-
-- **Equipe (1) ↔ (1) User (líder)**  
-  Uma equipe tem um líder único, e um usuário pode liderar apenas uma equipe.
+- **Cliente (N) ↔ (1) Vendedor**  
+  Um cliente é atendido por somente um vendedor, mas cada vendedor possui vários clientes.
 
 ---
 
@@ -157,14 +139,11 @@
 
 
   **Entidades principais:**
-  - **Projeto** → agrupa várias equipes.  
-  - **Equipe** → pertence a um projeto, tem membros e um líder.  
-  - **User** → pode estar em várias equipes e liderar uma delas.  
+  - **Cliente** → é atendido por somente um vendedor.  
+  - **Vendedor** → possui vários cientes.  
 
-  Relacionamentos:
-  - Projeto ↔ Equipe → **1:N**  
-  - Equipe ↔ User (membros) → **N:N**  
-  - Equipe ↔ User (líder) → **1:1**  
+  Relacionamento:
+  - Ciente ↔ Vendedor → **N:1**  
 
 ---
 
