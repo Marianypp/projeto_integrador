@@ -14,7 +14,8 @@
 ---
 
   ## Orientador
-  Inclua aqui o nome e link para o perfil do orientador responsável.
+  Diego Martins de Oliveira
+  https://github.com/diegomo2
 
 ---
 
