@@ -68,6 +68,15 @@ auditoria_bairro = pd.DataFrame({
 
 df["cep_normalizado"] = df["cep"]
 
+# CEPs que já vieram preenchidos na base original
+ceps_para_consultar = df[
+    df["cep"].notna() &
+    (df["cep"] != "00000-000")
+]["cep"].unique()
+
+print("CEPs para consultar:", len(ceps_para_consultar))
+print(ceps_para_consultar)
+
 ceps_referencia = {
     "Águas Claras": "71936-970",
     "Sul (Águas Claras)": "71936-970",

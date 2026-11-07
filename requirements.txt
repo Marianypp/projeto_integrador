@@ -1,6 +1,6 @@
-django
-djangorestframework
-drf-spectacular
-drf-spectacular-sidecar
+Django==6.1.3
+djangorestframework==3.18.3
+drf-spectacular==0.30.0
+drf-spectacular-sidecar==2026.10.1
 
-pandas
+pandas==3.1.1

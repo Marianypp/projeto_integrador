@@ -1,6 +1,4 @@
-
-
-  # 📘 DevLab Project API
+ # 📘 DevLab Project API
 
   [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
   [![Django](https://img.shields.io/badge/Django-5.0%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
@@ -16,7 +14,8 @@
 ---
 
   ## Orientador
-  Inclua aqui o nome e link para o perfil do orientador responsável.
+  Diego Martins de Oliveira
+  https://github.com/diegomo2
 
 ---
 
@@ -34,18 +33,20 @@
 
   ## Visão Geral
 
-  Este projeto implementa uma **API de Gestão de Projetos Colaborativos** voltada para coordenadores, professores e estudantes.  
-  O sistema permite organizar **projetos**, **equipes** e **usuários**, com regras de permissão claras:
+  Este projeto implementa uma **API REST de Consumo de Dados da Distribuidora Vetor**, desenvolvida em **Django** e **Django REST Framework (DRF)**.
+  O sistema disponibiliza os dados de clientes e vendedores armazenados em um banco de dados relacional, permitindo consultas públicas e operações restritas a usuários autenticados. O controle de acesso funciona com as seguintes regras:
 
-  - **Admin/staff** → pode criar, editar e excluir projetos e equipes, além de definir líderes.  
-  - **Usuário comum (aluno/professor)** → só pode listar e consultar projetos e equipes em que participa.  
+  - **Usuário autenticado** → pode listar, consultar, criar, editar e excluir registros de clientes e vendedores. 
+  - **Usuário não autenticado** → pode apenas listar e consultar os dados (requisições GET). 
 
   Funcionalidades principais:
-  - Cadastro de projetos com status e datas.  
-  - Criação de equipes vinculadas a projetos.  
-  - Definição de membros e líder da equipe.  
-  - Dashboard de projetos com equipes e participantes.  
-  - Documentação interativa da API (Swagger/ReDoc).  
+  - CRUD de clientes, permitindo listar, consultar, cadastrar, editar e excluir registros.  
+  - CRUD de vendedores responsáveis pelos clientes.  
+  - Consultas por bairro, agrupando clientes conforme o bairro normalizado.  
+  - Consultas por vendedor, listando os clientes atendidos por cada responsável.  
+  - Autenticação com Django Auth e Token Authentication (DRF).
+  - Controle de permissões para diferenciar usuários autenticados e não autenticados.
+  - Documentação interativa da API com OpenAPI, drf-spectacular e Redoc. 
 
 ---
 
@@ -96,40 +97,28 @@
 
 # Diagrama ER – DevLab Project API
 
-## Entidades e Relacionamentos
+## Entidades
 
-### Projeto
-| Campo             | Tipo      | Descrição                                |
-| ----------------- | --------- | ---------------------------------------- |
-| id                | PK (int)  | Identificador único do projeto           |
-| titulo            | CharField | Nome do projeto                          |
-| descricao         | TextField | Descrição detalhada                      |
-| cliente           | CharField | Cliente responsável                      |
-| status            | CharField | Status (planejado, andamento, concluído) |
-| data_inicio       | DateField | Data de início                           |
-| data_fim_prevista | DateField | Data prevista de término                 |
-
----
-
-### Equipe
-| Campo      | Tipo      | Descrição                         |
-| ---------- | --------- | --------------------------------- |
-| id         | PK (int)  | Identificador único da equipe     |
-| nome       | CharField | Nome da equipe                    |
-| descricao  | TextField | Descrição da equipe               |
-| projeto_id | FK (int)  | Chave estrangeira → Projeto (1:N) |
-| lider_id   | OneToOne  | Chave única → User (1:1)          |
+### Cliente
+| Campo             | Tipo      | Descrição                                           |
+| ----------------- | --------- | --------------------------------------------------- |
+| id_cliente        | PK (int)  | Identificador único do cliente                      |
+| razao_social      | CharField | Nome oficial de registro                            |
+| cnpj              | CharField | Número de identificação oficial                     |
+| telefone          | CharField | Linha de contato                                    |
+| email             | CharField | Endereço eletrônico personalizado                   |
+| bairro            | CharField | Endereço físico                                     |
+| cep               | CharField | Código numérico correspondente ao endereço físico   |
+| data_cadastro     | DateField | Data de início do vínculo                           |
+| vendedor_id       | FK (int)  | Identificador único do vendedor                     |
 
 ---
 
-### User
-| Campo    | Tipo       | Descrição                      |
-| -------- | ---------- | ------------------------------ |
-| id       | PK (int)   | Identificador único do usuário |
-| username | CharField  | Nome de login                  |
-| email    | EmailField | Email do usuário               |
-| password | CharField  | Senha (hash)                   |
-
+### Vendedor
+| Campo         | Tipo      | Descrição                         |
+| ------------- | --------- | --------------------------------- |
+| id_vendedor   | PK (int)  | Identificador único do vendedor   |
+| nome_vendedor | CharField | Nome do vendedor                  |
 
 
 
@@ -140,14 +129,8 @@
 
 ## 🔗 Relacionamentos
 
-- **Projeto (1) ↔ (N) Equipe**  
-  Um projeto pode ter várias equipes, mas cada equipe pertence a um único projeto.
-
-- **Equipe (N) ↔ (N) User (membros)**  
-  Uma equipe pode ter vários membros, e um usuário pode participar de várias equipes.
-
-- **Equipe (1) ↔ (1) User (líder)**  
-  Uma equipe tem um líder único, e um usuário pode liderar apenas uma equipe.
+- **Cliente (N) ↔ (1) Vendedor**  
+  Um cliente é atendido por somente um vendedor, mas cada vendedor possui vários clientes.
 
 ---
 
@@ -156,14 +139,11 @@
 
 
   **Entidades principais:**
-  - **Projeto** → agrupa várias equipes.  
-  - **Equipe** → pertence a um projeto, tem membros e um líder.  
-  - **User** → pode estar em várias equipes e liderar uma delas.  
+  - **Cliente** → é atendido por somente um vendedor.  
+  - **Vendedor** → possui vários cientes.  
 
-  Relacionamentos:
-  - Projeto ↔ Equipe → **1:N**  
-  - Equipe ↔ User (membros) → **N:N**  
-  - Equipe ↔ User (líder) → **1:1**  
+  Relacionamento:
+  - Ciente ↔ Vendedor → **N:1**  
 
 ---
 
