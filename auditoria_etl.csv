@@ -1,0 +1,104 @@
+id_cliente;campo;valor_original;valor_tratado;criterio
+CLI0002;bairro;Sul (Aguas Claras);Sul (Águas Claras);dicionario_de_normalizacao
+CLI0003;bairro;Taguatinga - DF;Taguatinga;dicionario_de_normalizacao
+CLI0004;bairro;aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0005;bairro;Taguatinga/DF;Taguatinga;dicionario_de_normalizacao
+CLI0007;bairro;TAGUATINGA;Taguatinga;dicionario_de_normalizacao
+CLI0008;bairro;V. Pires;Vicente Pires;dicionario_de_normalizacao
+CLI0009;bairro;Aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0010;bairro;Águas Claras/DF;Águas Claras;dicionario_de_normalizacao
+CLI0012;bairro;Aguas Claras - DF;Águas Claras;dicionario_de_normalizacao
+CLI0013;bairro;guara - df;Guará;dicionario_de_normalizacao
+CLI0015;bairro;AGUAS CLARAS;Águas Claras;dicionario_de_normalizacao
+CLI0016;bairro;Vicente Pires - DF;Vicente Pires;dicionario_de_normalizacao
+CLI0017;bairro;Vte Pires;Vicente Pires;dicionario_de_normalizacao
+CLI0018;bairro;Vte Pires;Vicente Pires;dicionario_de_normalizacao
+CLI0020;bairro;Taguatinga - DF;Taguatinga;dicionario_de_normalizacao
+CLI0021;bairro;taguatinga sul;Taguatinga Sul;dicionario_de_normalizacao
+CLI0022;bairro;TAGUATINGA;Taguatinga;dicionario_de_normalizacao
+CLI0023;bairro;Taguatinga - DF;Taguatinga;dicionario_de_normalizacao
+CLI0025;bairro;Taguatinga/DF;Taguatinga;dicionario_de_normalizacao
+CLI0026;bairro;VICENTE PIRES;Vicente Pires;dicionario_de_normalizacao
+CLI0028;bairro;Aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0032;bairro;aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0033;bairro;Vicente Pires - DF;Vicente Pires;dicionario_de_normalizacao
+CLI0036;bairro;taguatinga sul;Taguatinga Sul;dicionario_de_normalizacao
+CLI0037;bairro;Aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0038;bairro;Vte Pires;Vicente Pires;dicionario_de_normalizacao
+CLI0039;bairro;aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0041;bairro;Norte (Aguas Claras);Norte (Águas Claras);dicionario_de_normalizacao
+CLI0044;bairro;Águas Claras/DF;Águas Claras;dicionario_de_normalizacao
+CLI0045;bairro;Aguas claras;Águas Claras;dicionario_de_normalizacao
+CLI0005;cep;00000-000;72010-971;referencia_regional_por_bairro
+CLI0006;cep;;71936-970;referencia_regional_por_bairro
+CLI0007;cep;;72010-971;referencia_regional_por_bairro
+CLI0013;cep;;71010-970;referencia_regional_por_bairro
+CLI0014;cep;;72010-971;referencia_regional_por_bairro
+CLI0019;cep;;71010-970;referencia_regional_por_bairro
+CLI0024;cep;;71936-970;referencia_regional_por_bairro
+CLI0025;cep;;72010-971;referencia_regional_por_bairro
+CLI0026;cep;;72110-970;referencia_regional_por_bairro
+CLI0027;cep;;71010-970;referencia_regional_por_bairro
+CLI0031;cep;;71010-970;referencia_regional_por_bairro
+CLI0034;cep;;71010-970;referencia_regional_por_bairro
+CLI0039;cep;00000-000;71936-970;referencia_regional_por_bairro
+CLI0040;cep;00000-000;71936-970;referencia_regional_por_bairro
+CLI0046;cep;;71010-970;referencia_regional_por_bairro
+CLI0014;cnpj;27868011280598;27.868.011/2805-98;formatacao_cnpj
+CLI0016;cnpj;36541458685014;36.541.458/6850-14;formatacao_cnpj
+CLI0019;cnpj;48951343320037;48.951.343/3200-37;formatacao_cnpj
+CLI0022;cnpj;66587603669096;66.587.603/6690-96;formatacao_cnpj
+CLI0023;cnpj;34670656272980;34.670.656/2729-80;formatacao_cnpj
+CLI0025;cnpj;27193745299124;27.193.745/2991-24;formatacao_cnpj
+CLI0026;cnpj;49190586518506;49.190.586/5185-06;formatacao_cnpj
+CLI0042;cnpj;19693792374740;19.693.792/3747-40;formatacao_cnpj
+CLI0044;cnpj;53394210470952;53.394.210/4709-52;formatacao_cnpj
+CLI0001;telefone;61970855700;(61) 97085-5700;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0002;telefone;+55 61 95386-2084;(61) 95386-2084;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0003;telefone;+55 61 92489-1771;(61) 92489-1771;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0005;telefone;61951273847;(61) 95127-3847;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0006;telefone;+55 61 97118-8177;(61) 97118-8177;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0007;telefone;61999788677;(61) 99978-8677;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0009;telefone;+55 61 91035-7396;(61) 91035-7396;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0011;telefone;61942035886;(61) 94203-5886;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0012;telefone;61931172421;(61) 93117-2421;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0013;telefone;+55 61 95114-1832;(61) 95114-1832;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0017;telefone;61999038359;(61) 99903-8359;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0019;telefone;61 3970-2193;(61) 3970-2193;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0020;telefone;+55 61 99702-6198;(61) 99702-6198;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0021;telefone;61952910691;(61) 95291-0691;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0022;telefone;+55 61 91096-6763;(61) 91096-6763;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0023;telefone;+55 61 91444-2375;(61) 91444-2375;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0026;telefone;+55 61 92729-8102;(61) 92729-8102;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0027;telefone;61 3784-7209;(61) 3784-7209;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0028;telefone;+55 61 98342-1282;(61) 98342-1282;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0034;telefone;61 3356-1423;(61) 3356-1423;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0035;telefone;61953091709;(61) 95309-1709;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0039;telefone;+55 61 97246-7325;(61) 97246-7325;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0042;telefone;+55 61 95712-9955;(61) 95712-9955;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0043;telefone;61911086890;(61) 91108-6890;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0047;telefone;61914391105;(61) 91439-1105;remocao_codigo_pais_e_formatacao_por_quantidade_de_digitos
+CLI0003;data_cadastro;28/02/2022;2022-02-28;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0004;data_cadastro;Dec 24, 2023;2023-12-24;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0005;data_cadastro;08-01-2022;2022-01-08;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0008;data_cadastro;Aug 18, 2022;2022-08-18;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0010;data_cadastro;03/03/2021;2021-03-03;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0014;data_cadastro;02-05-2023;2023-05-02;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0017;data_cadastro;Feb 28, 2023;2023-02-28;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0018;data_cadastro;15-08-2024;2024-08-15;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0020;data_cadastro;25/08/2025;2025-08-25;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0021;data_cadastro;18/02/2022;2022-02-18;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0023;data_cadastro;jul 21, 2022;2022-07-21;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0024;data_cadastro;25-01-2022;2022-01-25;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0025;data_cadastro;10/10/2024;2024-10-10;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0028;data_cadastro;03-05-2022;2022-05-03;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0031;data_cadastro;18/07/2025;2025-07-18;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0032;data_cadastro;Feb 18, 2022;2022-02-18;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0033;data_cadastro;03-01-2022;2022-01-03;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0034;data_cadastro;Apr 3, 2025;2025-04-03;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0037;data_cadastro;Dec 16, 2023;2023-12-16;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0038;data_cadastro;27/10/2025;2025-10-27;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0039;data_cadastro;22-11-2022;2022-11-22;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0042;data_cadastro;06/02/2024;2024-02-06;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0043;data_cadastro;nov 19, 2021;2021-11-19;conversao_para_iso_yyyy_mm_dd_dia_primeiro
+CLI0045;data_cadastro;04/08/2023;2023-08-04;conversao_para_iso_yyyy_mm_dd_dia_primeiro

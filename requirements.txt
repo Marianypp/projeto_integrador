@@ -2,3 +2,5 @@ django
 djangorestframework
 drf-spectacular
 drf-spectacular-sidecar
+
+pandas
