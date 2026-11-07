@@ -33,18 +33,20 @@
 
   ## Visão Geral
 
-  Este projeto implementa uma **API de Gestão de Projetos Colaborativos** voltada para coordenadores, professores e estudantes.  
-  O sistema permite organizar **projetos**, **equipes** e **usuários**, com regras de permissão claras:
+  Este projeto implementa uma **API REST de Consumo de Dados da Distribuidora Vetor**, desenvolvida em **Django** e **Django REST Framework (DRF)**.
+  O sistema disponibiliza os dados de clientes e vendedores armazenados em um banco de dados relacional, permitindo consultas públicas e operações restritas a usuários autenticados. O controle de acesso funciona com as seguintes regras:
 
-  - **Admin/staff** → pode criar, editar e excluir projetos e equipes, além de definir líderes.  
-  - **Usuário comum (aluno/professor)** → só pode listar e consultar projetos e equipes em que participa.  
+  - **Usuário autenticado** → pode listar, consultar, criar, editar e excluir registros de clientes e vendedores. 
+  - **Usuário não autenticado** → pode apenas listar e consultar os dados (requisições GET). 
 
   Funcionalidades principais:
-  - Cadastro de projetos com status e datas.  
-  - Criação de equipes vinculadas a projetos.  
-  - Definição de membros e líder da equipe.  
-  - Dashboard de projetos com equipes e participantes.  
-  - Documentação interativa da API (Swagger/ReDoc).  
+  - CRUD de clientes, permitindo listar, consultar, cadastrar, editar e excluir registros.  
+  - CRUD de vendedores responsáveis pelos clientes.  
+  - Consultas por bairro, agrupando clientes conforme o bairro normalizado.  
+  - Consultas por vendedor, listando os clientes atendidos por cada responsável.  
+  - Autenticação com Django Auth e Token Authentication (DRF).
+  - Controle de permissões para diferenciar usuários autenticados e não autenticados.
+  - Documentação interativa da API com OpenAPI, drf-spectacular e Redoc. 
 
 ---
 
