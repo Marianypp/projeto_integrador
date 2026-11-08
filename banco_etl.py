@@ -52,7 +52,6 @@ conexao.execute("""
 
 conexao.commit()
 
-print("Conexão com o banco de dados realizada!")
 
 colunas_existentes = {
     coluna[1]
@@ -76,6 +75,8 @@ for nome, tipo in novas_colunas.items():
         )
 
 conexao.commit()
+
+print("Conexão com o banco de dados realizada!")
 
 conexao.executemany("""
     INSERT OR REPLACE INTO clientes (
@@ -119,9 +120,10 @@ cursor = conexao.execute("""
     SELECT COUNT(*)
     FROM clientes
     WHERE bairro_normalizado IS NULL
+       OR TRIM(bairro_normalizado) = ''
        OR cep_normalizado IS NULL
+       OR TRIM(cep_normalizado) = ''
 """)
-
 sem_localizacao = cursor.fetchone()[0]
 
 print("\nClientes sem bairro ou CEP:", sem_localizacao)
@@ -136,7 +138,9 @@ cursor = conexao.execute("""
     SELECT id_cliente, razao_social, bairro_normalizado, cep_normalizado
     FROM clientes
     WHERE bairro_normalizado IS NULL
+       OR TRIM(bairro_normalizado) = ''
        OR cep_normalizado IS NULL
+       OR TRIM(cep_normalizado) = ''
 """)
 
 print("\n===== CLIENTES COM LOCALIZAÇÃO PENDENTE =====")
