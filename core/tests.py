@@ -25,5 +25,16 @@ class TesteFormatacaoFixo(TestCase):
         with self.assertRaises(ValueError):
             formatar_fixo(telefone)
 
+    def test_celular_com_letras(self):
+        telefone = "61A987654321"
+
+        with self.assertRaises(ValueError):
+            formatar_celular(telefone)
+
+    def test_fixo_com_letras(self):
+        telefone = "61B32345678"
+
+        with self.assertRaises(ValueError):
+            formatar_fixo(telefone)
 
   

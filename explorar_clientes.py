@@ -1,5 +1,6 @@
 
 import pandas as pd
+from core.normalizacao import formatar_celular, formatar_fixo
 
 
 # ==========================================
@@ -184,23 +185,6 @@ df.loc[mascara_codigo_pais, "telefone_digitos"] = (
 )
 
 df["telefone_normalizado"] = df["telefone_digitos"]
-
-
-def formatar_celular(telefone):
-    ddd = telefone[:2]
-    numero = telefone[2:7]
-    final = telefone[7:]
-
-    return f"({ddd}) {numero}-{final}"
-
-
-def formatar_fixo(telefone):
-    ddd = telefone[:2]
-    numero = telefone[2:6]
-    final = telefone[6:]
-
-    return f"({ddd}) {numero}-{final}"
-
 
 mascara_celular = df["telefone_digitos"].str.len() == 11
 mascara_fixo = df["telefone_digitos"].str.len() == 10
