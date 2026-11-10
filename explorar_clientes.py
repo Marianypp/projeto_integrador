@@ -92,7 +92,7 @@ ceps_referencia = {
 
     "Guará": "71010-970",
     "Guará I": "71010-970",
-    "Guará II": "71010-970"
+    "Guará II": "71081-400"
 }
 
 mascara_cep_invalido = (
