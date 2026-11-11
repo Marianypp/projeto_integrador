@@ -20,6 +20,12 @@ class Projeto(models.Model):
     data_inicio = models.DateField()
     data_fim_prevista = models.DateField()
 
+    @property
+    def participantes(self):
+        return User.objects.filter(
+        equipes__projeto=self
+    ).distinct()
+
     def __str__(self):
         return self.titulo
 
