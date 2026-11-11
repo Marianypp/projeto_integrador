@@ -1,6 +1,6 @@
 
 import pandas as pd
-from Projeto_integrador_gerencia_projetos.core.normalizacao import formatar_celular, formatar_fixo
+from core.normalizacao import formatar_celular, formatar_fixo
 
 
 # ==========================================
