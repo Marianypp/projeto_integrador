@@ -1,0 +1,45 @@
+RELATÓRIO INICIAL - DISTRIBUIDORA VETOR
+=============================================
+Total de clientes: 47
+Total de colunas: 11
+
+VALORES VAZIOS:
+id_cliente: 0
+razao_social: 0
+cnpj: 0
+telefone: 0
+email: 0
+bairro_informado: 1
+cep: 13
+cidade: 0
+uf: 0
+data_cadastro: 0
+vendedor_responsavel: 0
+
+BAIRROS ENCONTRADOS:
+Aguas claras: 4
+Taguatinga - DF: 3
+aguas claras: 3
+Águas Claras: 3
+Vte Pires: 3
+Guará II: 3
+Sul (Águas Claras): 2
+Taguatinga/DF: 2
+TAGUATINGA: 2
+Águas Claras/DF: 2
+Vicente Pires - DF: 2
+taguatinga sul: 2
+Guará I: 2
+Águas Claras Norte: 2
+Sul (Aguas Claras): 1
+V. Pires: 1
+Vicente Pires: 1
+Aguas Claras - DF: 1
+guara - df: 1
+Taguatinga: 1
+AGUAS CLARAS: 1
+VICENTE PIRES: 1
+Águas Claras Sul: 1
+Norte (Águas Claras): 1
+Norte (Aguas Claras): 1
+(vazio): 1

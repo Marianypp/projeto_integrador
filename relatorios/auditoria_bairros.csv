@@ -1,0 +1,35 @@
+﻿id_cliente;campo;valor_original;valor_tratado;criterio
+CLI0001;bairro_informado;Sul (Águas Claras);Águas Claras Sul;Normalização por dicionário de equivalências
+CLI0002;bairro_informado;Sul (Aguas Claras);Águas Claras Sul;Normalização por dicionário de equivalências
+CLI0003;bairro_informado;Taguatinga - DF;Taguatinga;Normalização por dicionário de equivalências
+CLI0004;bairro_informado;aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0005;bairro_informado;Taguatinga/DF;Taguatinga;Normalização por dicionário de equivalências
+CLI0007;bairro_informado;TAGUATINGA;Taguatinga;Normalização por dicionário de equivalências
+CLI0008;bairro_informado;V. Pires;Vicente Pires;Normalização por dicionário de equivalências
+CLI0009;bairro_informado;Aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0010;bairro_informado;Águas Claras/DF;Águas Claras;Normalização por dicionário de equivalências
+CLI0012;bairro_informado;Aguas Claras - DF;Águas Claras;Normalização por dicionário de equivalências
+CLI0013;bairro_informado;guara - df;Guará;Normalização por dicionário de equivalências
+CLI0015;bairro_informado;AGUAS CLARAS;Águas Claras;Normalização por dicionário de equivalências
+CLI0016;bairro_informado;Vicente Pires - DF;Vicente Pires;Normalização por dicionário de equivalências
+CLI0017;bairro_informado;Vte Pires;Vicente Pires;Normalização por dicionário de equivalências
+CLI0018;bairro_informado;Vte Pires;Vicente Pires;Normalização por dicionário de equivalências
+CLI0020;bairro_informado;Taguatinga - DF;Taguatinga;Normalização por dicionário de equivalências
+CLI0021;bairro_informado;taguatinga sul;Taguatinga Sul;Normalização por dicionário de equivalências
+CLI0022;bairro_informado;TAGUATINGA;Taguatinga;Normalização por dicionário de equivalências
+CLI0023;bairro_informado;Taguatinga - DF;Taguatinga;Normalização por dicionário de equivalências
+CLI0024;bairro_informado;Sul (Águas Claras);Águas Claras Sul;Normalização por dicionário de equivalências
+CLI0025;bairro_informado;Taguatinga/DF;Taguatinga;Normalização por dicionário de equivalências
+CLI0026;bairro_informado;VICENTE PIRES;Vicente Pires;Normalização por dicionário de equivalências
+CLI0028;bairro_informado;Aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0030;bairro_informado;Norte (Águas Claras);Águas Claras Norte;Normalização por dicionário de equivalências
+CLI0032;bairro_informado;aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0033;bairro_informado;Vicente Pires - DF;Vicente Pires;Normalização por dicionário de equivalências
+CLI0036;bairro_informado;taguatinga sul;Taguatinga Sul;Normalização por dicionário de equivalências
+CLI0037;bairro_informado;Aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0038;bairro_informado;Vte Pires;Vicente Pires;Normalização por dicionário de equivalências
+CLI0039;bairro_informado;aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0041;bairro_informado;Norte (Aguas Claras);Águas Claras Norte;Normalização por dicionário de equivalências
+CLI0044;bairro_informado;Águas Claras/DF;Águas Claras;Normalização por dicionário de equivalências
+CLI0045;bairro_informado;Aguas claras;Águas Claras;Normalização por dicionário de equivalências
+CLI0047;bairro_informado;;;Bairro ausente ou desconhecido - revisão necessária

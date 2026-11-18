@@ -1,0 +1,38 @@
+﻿id_cliente;campo;valor_original;valor_tratado;criterio
+CLI0002;telefone;+55 61 95386-2084;61953862084;Remoção de máscara e DDI quando presente
+CLI0003;telefone;+55 61 92489-1771;61924891771;Remoção de máscara e DDI quando presente
+CLI0004;telefone;(61) 98433-1053;61984331053;Remoção de máscara e DDI quando presente
+CLI0006;telefone;+55 61 97118-8177;61971188177;Remoção de máscara e DDI quando presente
+CLI0008;telefone;(61) 94139-4116;61941394116;Remoção de máscara e DDI quando presente
+CLI0009;telefone;+55 61 91035-7396;61910357396;Remoção de máscara e DDI quando presente
+CLI0010;telefone;(61) 91931-9320;61919319320;Remoção de máscara e DDI quando presente
+CLI0013;telefone;+55 61 95114-1832;61951141832;Remoção de máscara e DDI quando presente
+CLI0014;telefone;(61) 98041-3088;61980413088;Remoção de máscara e DDI quando presente
+CLI0015;telefone;(61) 3491-1634;6134911634;Remoção de máscara e DDI quando presente
+CLI0016;telefone;(61) 95349-1626;61953491626;Remoção de máscara e DDI quando presente
+CLI0018;telefone;(61) 98043-6279;61980436279;Remoção de máscara e DDI quando presente
+CLI0019;telefone;61 3970-2193;6139702193;Remoção de máscara e DDI quando presente
+CLI0020;telefone;+55 61 99702-6198;61997026198;Remoção de máscara e DDI quando presente
+CLI0022;telefone;+55 61 91096-6763;61910966763;Remoção de máscara e DDI quando presente
+CLI0023;telefone;+55 61 91444-2375;61914442375;Remoção de máscara e DDI quando presente
+CLI0024;telefone;(61) 92124-1659;61921241659;Remoção de máscara e DDI quando presente
+CLI0025;telefone;(61) 3692-1420;6136921420;Remoção de máscara e DDI quando presente
+CLI0026;telefone;+55 61 92729-8102;61927298102;Remoção de máscara e DDI quando presente
+CLI0027;telefone;61 3784-7209;6137847209;Remoção de máscara e DDI quando presente
+CLI0028;telefone;+55 61 98342-1282;61983421282;Remoção de máscara e DDI quando presente
+CLI0029;telefone;(61) 3860-9779;6138609779;Remoção de máscara e DDI quando presente
+CLI0030;telefone;(61) 99042-2680;61990422680;Remoção de máscara e DDI quando presente
+CLI0031;telefone;(61) 3354-2940;6133542940;Remoção de máscara e DDI quando presente
+CLI0032;telefone;(61) 94929-3847;61949293847;Remoção de máscara e DDI quando presente
+CLI0033;telefone;(61) 95352-3330;61953523330;Remoção de máscara e DDI quando presente
+CLI0034;telefone;61 3356-1423;6133561423;Remoção de máscara e DDI quando presente
+CLI0036;telefone;(61) 99494-6927;61994946927;Remoção de máscara e DDI quando presente
+CLI0037;telefone;(61) 3763-3522;6137633522;Remoção de máscara e DDI quando presente
+CLI0038;telefone;(61) 3389-5891;6133895891;Remoção de máscara e DDI quando presente
+CLI0039;telefone;+55 61 97246-7325;61972467325;Remoção de máscara e DDI quando presente
+CLI0040;telefone;(61) 3972-6383;6139726383;Remoção de máscara e DDI quando presente
+CLI0041;telefone;(61) 3400-6873;6134006873;Remoção de máscara e DDI quando presente
+CLI0042;telefone;+55 61 95712-9955;61957129955;Remoção de máscara e DDI quando presente
+CLI0044;telefone;(61) 3402-6352;6134026352;Remoção de máscara e DDI quando presente
+CLI0045;telefone;(61) 3370-9791;6133709791;Remoção de máscara e DDI quando presente
+CLI0046;telefone;(61) 3138-5986;6131385986;Remoção de máscara e DDI quando presente

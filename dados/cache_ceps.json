@@ -1,0 +1,118 @@
+{
+    "71926750": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71926-750",
+            "bairro": "Sul (Águas Claras)",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "72140010": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "72140-010",
+            "bairro": "Taguatinga Norte",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "71929000": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71929-000",
+            "bairro": "Sul (Águas Claras)",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "72006400": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "72006-400",
+            "bairro": "Setor Habitacional Vicente Pires",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "71950000": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71950-000",
+            "bairro": "Areal",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "72110800": {
+        "status": "nao_encontrado",
+        "dados": null
+    },
+    "72006530": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "72006-530",
+            "bairro": "Setor Habitacional Vicente Pires",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "72130010": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "72130-010",
+            "bairro": "Taguatinga Norte",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "72110010": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "72110-010",
+            "bairro": "Taguatinga Norte",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "71900100": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71900-100",
+            "bairro": "Norte (Águas Claras)",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "71900000": {
+        "status": "nao_encontrado",
+        "dados": null
+    },
+    "71901010": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71901-010",
+            "bairro": "Norte (Águas Claras)",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "71925000": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71925-000",
+            "bairro": "Sul (Águas Claras)",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    },
+    "71906500": {
+        "status": "encontrado",
+        "dados": {
+            "cep": "71906-500",
+            "bairro": "Norte (Águas Claras)",
+            "localidade": "Brasília",
+            "uf": "DF"
+        }
+    }
+}

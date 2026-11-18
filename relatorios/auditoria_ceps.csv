@@ -1,0 +1,74 @@
+﻿id_cliente;campo;valor_original;valor_tratado;criterio
+CLI0001;cep;71926-750;71926750;Remoção de máscara do CEP
+CLI0002;cep;72140-010;72140010;Remoção de máscara do CEP
+CLI0002;bairro_normalizado;Águas Claras Sul;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0003;cep;72140-010;72140010;Remoção de máscara do CEP
+CLI0003;bairro_normalizado;Taguatinga;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0004;cep;71929-000;71929000;Remoção de máscara do CEP
+CLI0004;bairro_normalizado;Águas Claras;Sul (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0005;cep;00000-000;;CEP ausente ou formato inválido
+CLI0006;cep;;;CEP ausente ou formato inválido
+CLI0007;cep;;;CEP ausente ou formato inválido
+CLI0008;cep;72006-400;72006400;Remoção de máscara do CEP
+CLI0008;bairro_normalizado;Vicente Pires;Setor Habitacional Vicente Pires;Revisão geográfica necessária: revisao_manual
+CLI0009;cep;71926-750;71926750;Remoção de máscara do CEP
+CLI0009;bairro_normalizado;Águas Claras;Sul (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0010;cep;71950-000;71950000;Remoção de máscara do CEP
+CLI0010;bairro_normalizado;Águas Claras;Areal;Revisão geográfica necessária: revisao_manual
+CLI0011;cep;72006-400;72006400;Remoção de máscara do CEP
+CLI0011;bairro_normalizado;Vicente Pires;Setor Habitacional Vicente Pires;Revisão geográfica necessária: revisao_manual
+CLI0012;cep;71950-000;71950000;Remoção de máscara do CEP
+CLI0012;bairro_normalizado;Águas Claras;Areal;Revisão geográfica necessária: revisao_manual
+CLI0013;cep;;;CEP ausente ou formato inválido
+CLI0014;cep;;;CEP ausente ou formato inválido
+CLI0015;cep;71926-750;71926750;Remoção de máscara do CEP
+CLI0015;bairro_normalizado;Águas Claras;Sul (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0016;cep;72006-400;72006400;Remoção de máscara do CEP
+CLI0016;bairro_normalizado;Vicente Pires;Setor Habitacional Vicente Pires;Revisão geográfica necessária: revisao_manual
+CLI0017;cep;72110-800;72110800;Remoção de máscara do CEP
+CLI0017;bairro_normalizado;Vicente Pires;;CEP não encontrado na ViaCEP
+CLI0018;cep;72006-530;72006530;Remoção de máscara do CEP
+CLI0018;bairro_normalizado;Vicente Pires;Setor Habitacional Vicente Pires;Revisão geográfica necessária: revisao_manual
+CLI0019;cep;;;CEP ausente ou formato inválido
+CLI0020;cep;72130-010;72130010;Remoção de máscara do CEP
+CLI0020;bairro_normalizado;Taguatinga;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0021;cep;72140-010;72140010;Remoção de máscara do CEP
+CLI0021;bairro_normalizado;Taguatinga Sul;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0022;cep;72110-010;72110010;Remoção de máscara do CEP
+CLI0022;bairro_normalizado;Taguatinga;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0023;cep;72140-010;72140010;Remoção de máscara do CEP
+CLI0023;bairro_normalizado;Taguatinga;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0024;cep;;;CEP ausente ou formato inválido
+CLI0025;cep;;;CEP ausente ou formato inválido
+CLI0026;cep;;;CEP ausente ou formato inválido
+CLI0027;cep;;;CEP ausente ou formato inválido
+CLI0028;cep;71900-100;71900100;Remoção de máscara do CEP
+CLI0028;bairro_normalizado;Águas Claras;Norte (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0029;cep;71900-000;71900000;Remoção de máscara do CEP
+CLI0029;bairro_normalizado;Águas Claras Sul;;CEP não encontrado na ViaCEP
+CLI0030;cep;71901-010;71901010;Remoção de máscara do CEP
+CLI0031;cep;;;CEP ausente ou formato inválido
+CLI0032;cep;71950-000;71950000;Remoção de máscara do CEP
+CLI0032;bairro_normalizado;Águas Claras;Areal;Revisão geográfica necessária: revisao_manual
+CLI0033;cep;72110-800;72110800;Remoção de máscara do CEP
+CLI0033;bairro_normalizado;Vicente Pires;;CEP não encontrado na ViaCEP
+CLI0034;cep;;;CEP ausente ou formato inválido
+CLI0035;cep;71925-000;71925000;Remoção de máscara do CEP
+CLI0035;bairro_normalizado;Águas Claras;Sul (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0036;cep;72130-010;72130010;Remoção de máscara do CEP
+CLI0036;bairro_normalizado;Taguatinga Sul;Taguatinga Norte;Revisão geográfica necessária: revisao_manual
+CLI0037;cep;71929-000;71929000;Remoção de máscara do CEP
+CLI0037;bairro_normalizado;Águas Claras;Sul (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0038;cep;72006-530;72006530;Remoção de máscara do CEP
+CLI0038;bairro_normalizado;Vicente Pires;Setor Habitacional Vicente Pires;Revisão geográfica necessária: revisao_manual
+CLI0039;cep;00000-000;;CEP ausente ou formato inválido
+CLI0040;cep;00000-000;;CEP ausente ou formato inválido
+CLI0041;cep;71901-010;71901010;Remoção de máscara do CEP
+CLI0042;cep;71906-500;71906500;Remoção de máscara do CEP
+CLI0043;cep;71901-010;71901010;Remoção de máscara do CEP
+CLI0044;cep;71900-100;71900100;Remoção de máscara do CEP
+CLI0044;bairro_normalizado;Águas Claras;Norte (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0045;cep;71900-100;71900100;Remoção de máscara do CEP
+CLI0045;bairro_normalizado;Águas Claras;Norte (Águas Claras);Revisão geográfica necessária: revisao_subdivisao
+CLI0046;cep;;;CEP ausente ou formato inválido
+CLI0047;cep;;;CEP ausente ou formato inválido

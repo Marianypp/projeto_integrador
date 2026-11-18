@@ -1,0 +1,25 @@
+﻿id_cliente;campo;valor_original;valor_tratado;criterio
+CLI0003;data_cadastro;28/02/2022;2022-02-28;Conversão para o padrão ISO 8601
+CLI0004;data_cadastro;Dec 24, 2023;2023-12-24;Conversão para o padrão ISO 8601
+CLI0005;data_cadastro;08-01-2022;2022-01-08;Conversão para o padrão ISO 8601
+CLI0008;data_cadastro;Aug 18, 2022;2022-08-18;Conversão para o padrão ISO 8601
+CLI0010;data_cadastro;03/03/2021;2021-03-03;Conversão para o padrão ISO 8601
+CLI0014;data_cadastro;02-05-2023;2023-05-02;Conversão para o padrão ISO 8601
+CLI0017;data_cadastro;Feb 28, 2023;2023-02-28;Conversão para o padrão ISO 8601
+CLI0018;data_cadastro;15-08-2024;2024-08-15;Conversão para o padrão ISO 8601
+CLI0020;data_cadastro;25/08/2025;2025-08-25;Conversão para o padrão ISO 8601
+CLI0021;data_cadastro;18/02/2022;2022-02-18;Conversão para o padrão ISO 8601
+CLI0023;data_cadastro;jul 21, 2022;2022-07-21;Conversão para o padrão ISO 8601
+CLI0024;data_cadastro;25-01-2022;2022-01-25;Conversão para o padrão ISO 8601
+CLI0025;data_cadastro;10/10/2024;2024-10-10;Conversão para o padrão ISO 8601
+CLI0028;data_cadastro;03-05-2022;2022-05-03;Conversão para o padrão ISO 8601
+CLI0031;data_cadastro;18/07/2025;2025-07-18;Conversão para o padrão ISO 8601
+CLI0032;data_cadastro;Feb 18, 2022;2022-02-18;Conversão para o padrão ISO 8601
+CLI0033;data_cadastro;03-01-2022;2022-01-03;Conversão para o padrão ISO 8601
+CLI0034;data_cadastro;Apr 3, 2025;2025-04-03;Conversão para o padrão ISO 8601
+CLI0037;data_cadastro;Dec 16, 2023;2023-12-16;Conversão para o padrão ISO 8601
+CLI0038;data_cadastro;27/10/2025;2025-10-27;Conversão para o padrão ISO 8601
+CLI0039;data_cadastro;22-11-2022;2022-11-22;Conversão para o padrão ISO 8601
+CLI0042;data_cadastro;06/02/2024;2024-02-06;Conversão para o padrão ISO 8601
+CLI0043;data_cadastro;nov 19, 2021;2021-11-19;Conversão para o padrão ISO 8601
+CLI0045;data_cadastro;04/08/2023;2023-08-04;Conversão para o padrão ISO 8601
