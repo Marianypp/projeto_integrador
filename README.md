@@ -171,3 +171,7 @@ As regras de normalização, decisões de tratamento e limitações encontram-se
 Primeira etapa: ETL e persistência em banco relacional — implementação sujeita à validação final dos testes e dos dados.
 
 Segunda etapa: desenvolvimento da API REST com Django REST Framework.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 92ff96790eff285b2c1b5d3e1e379dbdcc63f437
