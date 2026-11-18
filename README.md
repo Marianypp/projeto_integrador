@@ -172,6 +172,3 @@ Primeira etapa: ETL e persistência em banco relacional — implementação suje
 
 Segunda etapa: desenvolvimento da API REST com Django REST Framework.
 
-     ```
-     python manage.py collectstatic
-     ```
