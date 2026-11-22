@@ -171,7 +171,37 @@ As regras de normalização, decisões de tratamento e limitações encontram-se
 Primeira etapa: ETL e persistência em banco relacional — implementação sujeita à validação final dos testes e dos dados.
 
 Segunda etapa: desenvolvimento da API REST com Django REST Framework.
-<<<<<<< HEAD
-=======
 
->>>>>>> 92ff96790eff285b2c1b5d3e1e379dbdcc63f437
+## API REST — Consultas iniciais
+
+A API REST da Distribuidora Vetor utiliza Django REST Framework para disponibilizar os dados tratados e armazenados no PostgreSQL.
+
+### Executando a API
+
+```bash
+python manage.py runserver
+```
+
+A aplicação estará disponível localmente em:
+
+http://127.0.0.1:8000/
+
+### Endpoints implementados
+
+| Método | Endpoint                    | Descrição                                     |
+|--------|-----------------------------|-----------------------------------------------|
+| GET    | /api/status/                | Verifica se a rota de status está respondendo |
+| GET    | /api/clientes/              | Lista os clientes cadastrados                 |
+| GET    | /api/clientes/{id_cliente}/ | Consulta um cliente específico                |
+
+Os endpoints de leitura disponibilizados nesta etapa permitem acesso sem autenticação, conforme a estratégia inicial do projeto.
+
+As operações de cadastro, atualização e exclusão serão implementadas nas etapas seguintes, juntamente com os mecanismos de autenticação e autorização.
+
+### Testes da API
+
+```bash
+python manage.py test clientes.tests.TesteAPIClientes -v 2
+```
+
+Os testes verificam a disponibilidade dos endpoints, a listagem e consulta de clientes, a representação dos vendedores relacionados, o tratamento de recursos inexistentes e a restrição de métodos ainda não implementados.
