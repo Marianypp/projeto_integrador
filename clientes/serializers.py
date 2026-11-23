@@ -45,6 +45,21 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 class ClienteEscritaSerializer(serializers.ModelSerializer):
 
+    telefone = serializers.CharField(
+        max_length=20,
+        required=False,
+        allow_null=True,
+        allow_blank=True
+    )
+
+    cep = serializers.CharField(
+        max_length=12,
+        required=False,
+        allow_null=True,
+        allow_blank=True
+    )
+
+
     class Meta:
         model = Cliente
 
