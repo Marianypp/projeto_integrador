@@ -387,3 +387,69 @@ python manage.py test clientes -v 2
 As consultas agrupadas permitem utilizar os dados normalizados durante o ETL para produzir informações gerenciais sobre a distribuição dos clientes.
 
 A implementação demonstra a integração entre tratamento de dados, persistência em banco relacional e disponibilização de informações por uma API REST.
+
+## Autenticação e segurança da API
+
+A API REST da Distribuidora Vetor utiliza mecanismos de autenticação do Django REST Framework para proteger operações de escrita.
+
+Nesta etapa, foi configurada a autenticação por token (`TokenAuthentication`), permitindo que usuários cadastrados realizem operações autenticadas em clientes e vendedores.
+
+### Métodos de autenticação
+
+A aplicação utiliza:
+
+- `TokenAuthentication`: autenticação por token enviado no cabeçalho HTTP.
+- `SessionAuthentication`: autenticação por sessão do Django.
+
+### Regras de acesso
+
+| Operação                                  | Permissão           |
+|-------------------------------------------|---------------------|
+| Consultar clientes                        | Pública             |
+| Consultar vendedores                      | Pública             |
+| Consultas agrupadas por bairro e vendedor | Pública             |
+| Cadastrar clientes e vendedores           | Usuário autenticado |
+| Atualizar clientes e vendedores           | Usuário autenticado |
+| Excluir clientes e vendedores             | Usuário autenticado |
+
+### Utilização do token
+
+Para realizar uma operação autenticada, o cliente HTTP deve enviar o cabeçalho:
+
+```http
+Authorization: Token SEU_TOKEN_AQUI
+```
+
+O token deve ser gerado para um usuário existente no Django.
+
+Por questões de segurança, tokens reais não devem ser publicados no repositório.
+
+### Testes de autenticação
+
+Foram implementados testes automatizados para verificar:
+
+- Acesso público às consultas.
+- Bloqueio de operações de escrita sem autenticação.
+- Cadastro utilizando token válido.
+- Rejeição de token inválido.
+- Proteção contra atualização e exclusão não autorizadas.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TesteAutenticacaoAPI -v 2
+```
+
+Para executar todos os testes:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Considerações de segurança
+
+A autenticação por token foi implementada como parte da proteção inicial da API REST.
+
+Em um ambiente de produção, recomenda-se utilizar HTTPS, proteger os tokens e aplicar controles de acesso mais específicos conforme as funções dos usuários.
+
+Também será necessário revisar a exposição pública de informações pessoais de clientes e implementar mecanismos de auditoria das alterações realizadas.

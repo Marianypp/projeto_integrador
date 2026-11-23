@@ -2,6 +2,7 @@ from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.authtoken.models import Token
 
 from django.test import TestCase
 from django.db.models.deletion import ProtectedError
@@ -9,6 +10,7 @@ from django.db.models.deletion import ProtectedError
 from .models import Cliente, Vendedor, Auditoria
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 
 class TesteBancoDados(TestCase):
@@ -894,4 +896,165 @@ class TesteConsultasAgrupadas(APITestCase):
         self.assertEqual(
             resposta_vendedor.status_code,
             status.HTTP_200_OK
+        )
+
+
+class TesteAutenticacaoAPI(APITestCase):
+
+    def setUp(self):
+
+        self.usuario = User.objects.create_user(
+            username="usuario_teste",
+            password="SenhaTeste123!"
+        )
+
+        self.token = Token.objects.create(
+            user=self.usuario
+        )
+
+        self.url_vendedores = reverse(
+            "vendedor-list"
+        )
+
+        self.url_bairros = reverse(
+            "clientes-por-bairro"
+        )
+
+    def test_consulta_publica_sem_token(self):
+
+        resposta = self.client.get(
+            self.url_vendedores
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_cadastro_sem_token(self):
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {"nome": "Vendedor Sem Token"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            resposta.data
+        )
+
+    def test_cadastro_com_token_valido(self):
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=(
+                f"Token {self.token.key}"
+            )
+        )
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {"nome": "Vendedor Autenticado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_201_CREATED,
+            resposta.data
+        )
+
+        self.assertTrue(
+            Vendedor.objects.filter(
+                nome="Vendedor Autenticado"
+            ).exists()
+        )
+
+    def test_token_invalido(self):
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=(
+                "Token token_invalido"
+            )
+        )
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {"nome": "Vendedor Inválido"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            resposta.data
+        )
+
+    def test_consulta_agrupada_publica(self):
+
+        resposta = self.client.get(
+            self.url_bairros
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_atualizacao_sem_token(self):
+
+        vendedor = Vendedor.objects.create(
+            nome="Vendedor Original"
+        )
+
+        url_detalhe = reverse(
+            "vendedor-detail",
+            args=[vendedor.pk]
+        )
+
+        resposta = self.client.patch(
+            url_detalhe,
+            {"nome": "Nome Alterado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            resposta.data
+        )
+
+        vendedor.refresh_from_db()
+
+        self.assertEqual(
+            vendedor.nome,
+            "Vendedor Original"
+        )
+
+    def test_exclusao_sem_token(self):
+
+        vendedor = Vendedor.objects.create(
+            nome="Vendedor Protegido"
+        )
+
+        url_detalhe = reverse(
+            "vendedor-detail",
+            args=[vendedor.pk]
+        )
+
+        resposta = self.client.delete(
+            url_detalhe
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            resposta.data
+        )
+
+        self.assertTrue(
+            Vendedor.objects.filter(
+                pk=vendedor.pk
+            ).exists()
         )
