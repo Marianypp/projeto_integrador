@@ -200,3 +200,104 @@ class VendedorViewSet(viewsets.ModelViewSet):
         )
 
         return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def clientes_por_bairro(request):
+
+    bairro_filtro = request.query_params.get(
+        "bairro"
+    )
+
+    clientes = (
+        Cliente.objects
+        .filter(ativo=True)
+        .exclude(bairro__isnull=True)
+        .exclude(bairro="")
+    )
+
+    if bairro_filtro:
+        clientes = clientes.filter(
+            bairro__iexact=bairro_filtro.strip()
+        )
+
+    agrupamento = (
+        clientes
+        .values("bairro")
+        .annotate(
+            total_clientes=Count("id_cliente")
+        )
+        .order_by("bairro")
+    )
+
+    resultado = list(agrupamento)
+
+    return Response({
+        "total_bairros": len(resultado),
+        "total_clientes": sum(
+            item["total_clientes"]
+            for item in resultado
+        ),
+        "resultados": resultado
+    })
+
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def clientes_por_vendedor(request):
+
+    vendedor_id = request.query_params.get(
+        "vendedor_id"
+    )
+
+    vendedores = Vendedor.objects.all()
+
+    if vendedor_id is not None:
+
+        if (
+            not vendedor_id.isdecimal()
+            or int(vendedor_id) < 1
+        ):
+            return Response(
+                {
+                    "erro": (
+                        "vendedor_id deve ser "
+                        "um número inteiro positivo."
+                    )
+                },
+                status=400
+            )
+
+        vendedores = vendedores.filter(
+            pk=int(vendedor_id)
+        )
+
+    agrupamento = (
+        vendedores
+        .annotate(
+            total_clientes=Count(
+                "clientes",
+                filter=Q(clientes__ativo=True)
+            )
+        )
+        .values(
+            "id",
+            "nome",
+            "total_clientes"
+        )
+        .order_by("nome")
+    )
+
+    resultado = list(agrupamento)
+
+    return Response({
+        "total_vendedores": len(resultado),
+        "total_clientes": sum(
+            item["total_clientes"]
+            for item in resultado
+        ),
+        "resultados": resultado
+    })
+

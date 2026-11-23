@@ -303,3 +303,87 @@ python manage.py test clientes -v 2
 O desenvolvimento do CRUD de vendedores permitiu aplicar conceitos de APIs REST, relacionamentos entre tabelas, validação de dados, autenticação, integridade referencial e testes automatizados.
 
 A funcionalidade também contribui para a organização dos dados da Distribuidora Vetor, permitindo consultar os clientes associados a cada vendedor e evitando a exclusão de registros que possuem vínculos com outras entidades.
+
+## Consultas agrupadas — Clientes por bairro e vendedor
+
+Nesta etapa do projeto, foram implementadas consultas agrupadas utilizando o Django ORM e o Django REST Framework.
+
+O objetivo é disponibilizar informações resumidas sobre os clientes da Distribuidora Vetor, permitindo consultar a distribuição dos clientes ativos por bairro normalizado e por vendedor responsável.
+
+### Endpoints
+
+| Método | Endpoint                                | Descrição                           | Acesso  |
+|--------|-----------------------------------------|-------------------------------------|---------|
+| GET    | `/api/consultas/clientes-por-bairro/`   | Agrupa clientes ativos por bairro   | Público |
+| GET    | `/api/consultas/clientes-por-vendedor/` | Agrupa clientes ativos por vendedor | Público |
+
+### Consulta por bairro
+
+O endpoint `/api/consultas/clientes-por-bairro/` retorna a quantidade de clientes ativos agrupados pelo campo `bairro`.
+
+A consulta utiliza `values()`, `annotate()` e `Count()` do Django ORM.
+
+Clientes inativos e clientes sem bairro informado não são incluídos no agrupamento.
+
+É possível utilizar o parâmetro opcional `bairro` para consultar um bairro específico.
+
+Exemplo:
+
+`GET /api/consultas/clientes-por-bairro/?bairro=Águas Claras`
+
+### Consulta por vendedor
+
+O endpoint `/api/consultas/clientes-por-vendedor/` retorna a quantidade de clientes ativos vinculados a cada vendedor.
+
+A consulta utiliza `Count()` com uma condição `Q()` para considerar somente clientes ativos.
+
+Vendedores sem clientes ativos também são apresentados, com total igual a zero.
+
+É possível utilizar o parâmetro opcional `vendedor_id` para consultar um vendedor específico.
+
+Exemplo:
+
+`GET /api/consultas/clientes-por-vendedor/?vendedor_id=1`
+
+### Regras de negócio
+
+- As consultas agrupadas são públicas e aceitam requisições GET.
+- Somente clientes ativos são considerados nas contagens.
+- O agrupamento por bairro utiliza os valores normalizados armazenados no banco de dados.
+- Clientes sem bairro informado não são contabilizados no agrupamento por bairro.
+- Vendedores sem clientes ativos são incluídos na consulta por vendedor.
+- Os filtros são opcionais.
+
+### Testes automatizados
+
+Foram criados testes utilizando `APITestCase` para verificar os agrupamentos, os filtros, a exclusão de clientes inativos das contagens e o acesso público aos endpoints.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TesteConsultasAgrupadas -v 2
+```
+
+Para executar todos os testes da aplicação:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Tecnologias e recursos utilizados
+
+- Python
+- Django
+- Django REST Framework
+- Django ORM
+- PostgreSQL
+- `values()`
+- `annotate()`
+- `Count()`
+- `Q()`
+
+### Considerações
+
+As consultas agrupadas permitem utilizar os dados normalizados durante o ETL para produzir informações gerenciais sobre a distribuição dos clientes.
+
+A implementação demonstra a integração entre tratamento de dados, persistência em banco relacional e disponibilização de informações por uma API REST.

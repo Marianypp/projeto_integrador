@@ -330,6 +330,10 @@ class TesteCRUDClientes(APITestCase):
             format="json"
         )
 
+        print("\nERRO NO CADASTRO:")
+        print(resposta.status_code)
+        print(resposta.data)
+
         self.assertEqual(
             resposta.status_code,
             status.HTTP_201_CREATED
@@ -385,6 +389,10 @@ class TesteCRUDClientes(APITestCase):
             },
             format="json"
         )
+
+        print("\nERRO NA ATUALIZAÇÃO:")
+        print(resposta.status_code)
+        print(resposta.data)
 
         self.assertEqual(
             resposta.status_code,
@@ -660,4 +668,230 @@ class TesteCRUDVendedores(APITestCase):
         self.assertEqual(
             resposta.data[0]["id_cliente"],
             "TEST002"
+        )
+
+
+class TesteConsultasAgrupadas(APITestCase):
+
+    def setUp(self):
+
+        self.vendedor1 = Vendedor.objects.create(
+            nome="Ana"
+        )
+
+        self.vendedor2 = Vendedor.objects.create(
+            nome="Carlos"
+        )
+
+        self.vendedor3 = Vendedor.objects.create(
+            nome="Marcos"
+        )
+
+        self.criar_cliente(
+            "TEST001",
+            "Empresa A",
+            "Águas Claras",
+            self.vendedor1
+        )
+
+        self.criar_cliente(
+            "TEST002",
+            "Empresa B",
+            "Águas Claras",
+            self.vendedor1
+        )
+
+        self.criar_cliente(
+            "TEST003",
+            "Empresa C",
+            "Taguatinga",
+            self.vendedor2
+        )
+
+        self.criar_cliente(
+            "TEST004",
+            "Empresa D",
+            "Taguatinga",
+            self.vendedor2,
+            ativo=False
+        )
+
+        self.url_bairro = reverse(
+            "clientes-por-bairro"
+        )
+
+        self.url_vendedor = reverse(
+            "clientes-por-vendedor"
+        )
+
+    def criar_cliente(
+        self,
+        identificador,
+        nome,
+        bairro,
+        vendedor,
+        ativo=True
+    ):
+
+        return Cliente.objects.create(
+            id_cliente=identificador,
+            razao_social=nome,
+            bairro=bairro,
+            cidade="Brasília",
+            uf="DF",
+            vendedor=vendedor,
+            ativo=ativo
+        )
+
+    def test_agrupamento_por_bairro(self):
+
+        resposta = self.client.get(
+            self.url_bairro
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["total_bairros"],
+            2
+        )
+
+        self.assertEqual(
+            resposta.data["total_clientes"],
+            3
+        )
+
+        resultados = {
+            item["bairro"]: item["total_clientes"]
+            for item in resposta.data["resultados"]
+        }
+
+        self.assertEqual(
+            resultados["Águas Claras"],
+            2
+        )
+
+        self.assertEqual(
+            resultados["Taguatinga"],
+            1
+        )
+
+    def test_filtro_por_bairro(self):
+
+        resposta = self.client.get(
+            self.url_bairro,
+            {"bairro": "Águas Claras"}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["total_bairros"],
+            1
+        )
+
+        self.assertEqual(
+            resposta.data["total_clientes"],
+            2
+        )
+
+    def test_agrupamento_por_vendedor(self):
+
+        resposta = self.client.get(
+            self.url_vendedor
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["total_vendedores"],
+            3
+        )
+
+        self.assertEqual(
+            resposta.data["total_clientes"],
+            3
+        )
+
+        resultados = {
+            item["nome"]: item["total_clientes"]
+            for item in resposta.data["resultados"]
+        }
+
+        self.assertEqual(
+            resultados["Ana"],
+            2
+        )
+
+        self.assertEqual(
+            resultados["Carlos"],
+            1
+        )
+
+        self.assertEqual(
+            resultados["Marcos"],
+            0
+        )
+
+    def test_filtro_por_vendedor(self):
+
+        resposta = self.client.get(
+            self.url_vendedor,
+            {"vendedor_id": self.vendedor1.pk}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["total_vendedores"],
+            1
+        )
+
+        self.assertEqual(
+            resposta.data["total_clientes"],
+            2
+        )
+
+    def test_vendedor_id_invalido(self):
+
+        resposta = self.client.get(
+            self.url_vendedor,
+            {"vendedor_id": "abc"}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_consultas_sao_publicas(self):
+
+        resposta_bairro = self.client.get(
+            self.url_bairro
+        )
+
+        resposta_vendedor = self.client.get(
+            self.url_vendedor
+        )
+
+        self.assertEqual(
+            resposta_bairro.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta_vendedor.status_code,
+            status.HTTP_200_OK
         )
