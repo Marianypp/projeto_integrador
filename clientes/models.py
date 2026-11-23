@@ -97,9 +97,16 @@ class Cliente(models.Model):
         blank=True
     )
 
+    ativo = models.BooleanField(
+    default=True,
+    db_index=True
+    )
+
+
     def __str__(self):
         return self.razao_social
 
+    
 
 class Auditoria(models.Model):
 

@@ -8,6 +8,8 @@ from django.db.models.deletion import ProtectedError
 
 from .models import Cliente, Vendedor, Auditoria
 
+from django.contrib.auth import get_user_model
+
 
 class TesteBancoDados(TestCase):
 
@@ -144,7 +146,7 @@ class TesteAPIClientes(APITestCase):
 
     def test_listar_clientes(self):
 
-        url = reverse("listar-clientes")
+        url = reverse("cliente-list")
 
         resposta = self.client.get(url)
 
@@ -166,7 +168,7 @@ class TesteAPIClientes(APITestCase):
     def test_consultar_cliente(self):
 
         url = reverse(
-            "consultar-cliente",
+            "cliente-detail",
             kwargs={"id_cliente": "TEST001"}
         )
 
@@ -185,7 +187,7 @@ class TesteAPIClientes(APITestCase):
     def test_cliente_inexistente(self):
 
         url = reverse(
-            "consultar-cliente",
+            "cliente-detail",
             kwargs={"id_cliente": "INEXISTENTE"}
         )
 
@@ -196,22 +198,10 @@ class TesteAPIClientes(APITestCase):
             status.HTTP_404_NOT_FOUND
         )
 
-    def test_post_nao_permitido(self):
+    
+    def test_post_sem_autenticacao(self):
 
-        url = reverse("listar-clientes")
-
-        # Autentica para testar especificamente
-        # se o método POST está implementado.
-        from django.contrib.auth import get_user_model
-
-        usuario = get_user_model().objects.create_user(
-            username="usuario_teste",
-            password="senha_apenas_para_teste"
-        )
-
-        self.client.force_authenticate(
-            user=usuario
-        )
+        url = reverse("cliente-list")
 
         resposta = self.client.post(
             url,
@@ -219,15 +209,16 @@ class TesteAPIClientes(APITestCase):
             format="json"
         )
 
-        self.assertEqual(
+        self.assertIn(
             resposta.status_code,
-            status.HTTP_405_METHOD_NOT_ALLOWED
+            [401, 403]
         )
+
 
     def test_nome_vendedor(self):
 
         url = reverse(
-            "consultar-cliente",
+            "cliente-detail",
             kwargs={"id_cliente": "TEST001"}
         )
 
@@ -236,4 +227,437 @@ class TesteAPIClientes(APITestCase):
         self.assertEqual(
             resposta.data["vendedor_nome"],
             "Vendedor de Teste"
+        )
+
+
+class TesteCRUDClientes(APITestCase):
+
+    def setUp(self):
+
+        self.usuario = (
+            get_user_model().objects.create_user(
+                username="teste_crud",
+                password="senha_de_teste"
+            )
+        )
+
+        self.vendedor = Vendedor.objects.create(
+            nome="Vendedor Teste"
+        )
+
+        self.cliente = Cliente.objects.create(
+            id_cliente="TEST001",
+            razao_social="Empresa Teste",
+            cnpj="12345678000199",
+            telefone="61999999999",
+            email="teste@example.com",
+            bairro="Águas Claras",
+            cep="71926750",
+            cidade="Brasília",
+            uf="DF",
+            vendedor=self.vendedor
+        )
+
+        self.url_lista = reverse(
+            "cliente-list"
+        )
+
+        self.url_detalhe = reverse(
+            "cliente-detail",
+            kwargs={
+                "id_cliente": "TEST001"
+            }
+        )
+
+    def autenticar(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+    def test_listagem_publica(self):
+
+        resposta = self.client.get(
+            self.url_lista
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            len(resposta.data),
+            1
+        )
+
+    def test_cadastro_sem_autenticacao(self):
+
+        resposta = self.client.post(
+            self.url_lista,
+            {},
+            format="json"
+        )
+
+        self.assertIn(
+            resposta.status_code,
+            [
+                status.HTTP_401_UNAUTHORIZED,
+                status.HTTP_403_FORBIDDEN
+            ]
+        )
+
+    def test_cadastro_autenticado(self):
+
+        self.autenticar()
+
+        dados = {
+            "id_cliente": "TEST002",
+            "razao_social": "Nova Empresa",
+            "cnpj": "98765432000199",
+            "telefone": "(61) 98888-7777",
+            "email": "nova@example.com",
+            "bairro": "aguas claras",
+            "cep": "71926-750",
+            "cidade": "Brasília",
+            "uf": "DF",
+            "vendedor": self.vendedor.pk
+        }
+
+        resposta = self.client.post(
+            self.url_lista,
+            dados,
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_201_CREATED
+        )
+
+        self.assertTrue(
+            Cliente.objects.filter(
+                id_cliente="TEST002"
+            ).exists()
+        )
+
+    def test_cnpj_invalido(self):
+
+        self.autenticar()
+
+        dados = {
+            "id_cliente": "TEST003",
+            "razao_social": "Empresa Inválida",
+            "cnpj": "12345",
+            "telefone": "61999999999",
+            "email": "invalida@example.com",
+            "bairro": "Águas Claras",
+            "cep": "71926750",
+            "cidade": "Brasília",
+            "uf": "DF",
+            "vendedor": self.vendedor.pk
+        }
+
+        resposta = self.client.post(
+            self.url_lista,
+            dados,
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertIn(
+            "cnpj",
+            resposta.data
+        )
+
+    def test_atualizacao_parcial(self):
+
+        self.autenticar()
+
+        resposta = self.client.patch(
+            self.url_detalhe,
+            {
+                "telefone": "(61) 97777-6666"
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.cliente.refresh_from_db()
+
+        self.assertEqual(
+            self.cliente.telefone,
+            "61977776666"
+        )
+
+    def test_exclusao_logica(self):
+
+        self.autenticar()
+
+        resposta = self.client.delete(
+            self.url_detalhe
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+
+        self.cliente.refresh_from_db()
+
+        self.assertFalse(
+            self.cliente.ativo
+        )
+
+        self.assertTrue(
+            Cliente.objects.filter(
+                id_cliente="TEST001"
+            ).exists()
+        )
+
+    def test_cliente_inativo_nao_aparece(self):
+
+        self.cliente.ativo = False
+        self.cliente.save()
+
+        resposta = self.client.get(
+            self.url_detalhe
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+
+class TesteCRUDVendedores(APITestCase):
+
+    def setUp(self):
+
+        self.usuario = (
+            get_user_model().objects.create_user(
+                username="teste_vendedor",
+                password="senha_de_teste"
+            )
+        )
+
+        self.vendedor = Vendedor.objects.create(
+            nome="Vendedor Teste"
+        )
+
+        self.url_lista = reverse(
+            "vendedor-list"
+        )
+
+        self.url_detalhe = reverse(
+            "vendedor-detail",
+            kwargs={"pk": self.vendedor.pk}
+        )
+
+    def autenticar(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+    def test_listar_vendedores(self):
+
+        resposta = self.client.get(
+            self.url_lista
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            len(resposta.data),
+            1
+        )
+
+    def test_consultar_vendedor(self):
+
+        resposta = self.client.get(
+            self.url_detalhe
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["nome"],
+            "Vendedor Teste"
+        )
+
+    def test_cadastro_autenticado(self):
+
+        self.autenticar()
+
+        resposta = self.client.post(
+            self.url_lista,
+            {"nome": "Novo Vendedor"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_201_CREATED
+        )
+
+        self.assertTrue(
+            Vendedor.objects.filter(
+                nome="Novo Vendedor"
+            ).exists()
+        )
+
+    def test_cadastro_sem_autenticacao(self):
+
+        resposta = self.client.post(
+            self.url_lista,
+            {"nome": "Novo Vendedor"},
+            format="json"
+        )
+
+        self.assertIn(
+            resposta.status_code,
+            [
+                status.HTTP_401_UNAUTHORIZED,
+                status.HTTP_403_FORBIDDEN
+            ]
+        )
+
+    def test_nome_invalido(self):
+
+        self.autenticar()
+
+        resposta = self.client.post(
+            self.url_lista,
+            {"nome": "Jo"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_atualizar_vendedor(self):
+
+        self.autenticar()
+
+        resposta = self.client.patch(
+            self.url_detalhe,
+            {"nome": "Vendedor Atualizado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.vendedor.refresh_from_db()
+
+        self.assertEqual(
+            self.vendedor.nome,
+            "Vendedor Atualizado"
+        )
+
+    def test_excluir_sem_clientes(self):
+
+        self.autenticar()
+
+        resposta = self.client.delete(
+            self.url_detalhe
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+
+        self.assertFalse(
+            Vendedor.objects.filter(
+                pk=self.vendedor.pk
+            ).exists()
+        )
+
+    def test_impedir_exclusao_com_clientes(self):
+
+        Cliente.objects.create(
+            id_cliente="TEST001",
+            razao_social="Empresa Teste",
+            cnpj="12345678000199",
+            telefone="61999999999",
+            email="teste@example.com",
+            bairro="Águas Claras",
+            cep="71926750",
+            cidade="Brasília",
+            uf="DF",
+            vendedor=self.vendedor
+        )
+
+        self.autenticar()
+
+        resposta = self.client.delete(
+            self.url_detalhe
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertTrue(
+            Vendedor.objects.filter(
+                pk=self.vendedor.pk
+            ).exists()
+        )
+
+    def test_listar_clientes_do_vendedor(self):
+
+        Cliente.objects.create(
+            id_cliente="TEST002",
+            razao_social="Empresa Exemplo",
+            cnpj="98765432000199",
+            telefone="61988887777",
+            email="exemplo@example.com",
+            bairro="Taguatinga",
+            cep="72140010",
+            cidade="Brasília",
+            uf="DF",
+            vendedor=self.vendedor
+        )
+
+        url = reverse(
+            "vendedor-clientes",
+            kwargs={"pk": self.vendedor.pk}
+        )
+
+        resposta = self.client.get(url)
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            len(resposta.data),
+            1
+        )
+
+        self.assertEqual(
+            resposta.data[0]["id_cliente"],
+            "TEST002"
         )

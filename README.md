@@ -205,3 +205,101 @@ python manage.py test clientes.tests.TesteAPIClientes -v 2
 ```
 
 Os testes verificam a disponibilidade dos endpoints, a listagem e consulta de clientes, a representação dos vendedores relacionados, o tratamento de recursos inexistentes e a restrição de métodos ainda não implementados.
+
+## API REST — Gerenciamento de Vendedores
+
+Nesta etapa do projeto da Distribuidora Vetor, foi desenvolvido o CRUD de vendedores utilizando Django REST Framework (DRF), permitindo realizar operações de cadastro, consulta, atualização e exclusão dos vendedores responsáveis pelos clientes.
+
+A implementação utiliza `ModelViewSet`, `ModelSerializer` e `DefaultRouter`, facilitando a organização do código e a criação automática das rotas da API.
+
+### Endpoints de vendedores
+
+| Método HTTP | Endpoint                         | Descrição                                       | Acesso      |
+|-------------|----------------------------------|-------------------------------------------------|-------------|
+| GET         | `/api/vendedores/`               | Lista todos os vendedores cadastrados           | Público     |
+| GET         | `/api/vendedores/{id}/`          | Consulta um vendedor pelo identificador         | Público     |
+| POST        | `/api/vendedores/`               | Cadastra um novo vendedor                       | Autenticado |
+| PUT         | `/api/vendedores/{id}/`          | Atualiza os dados de um vendedor                | Autenticado |
+| PATCH       | `/api/vendedores/{id}/`          | Atualiza parcialmente os dados de um vendedor   | Autenticado |
+| DELETE      | `/api/vendedores/{id}/`          | Exclui um vendedor sem clientes vinculados      | Autenticado |
+| GET         | `/api/vendedores/{id}/clientes/` | Lista os clientes ativos vinculados ao vendedor | Público     |
+
+### Relacionamento entre clientes e vendedores
+
+O sistema utiliza um relacionamento de um para muitos (1:N), no qual um vendedor pode ser responsável por vários clientes, enquanto cada cliente possui um vendedor responsável.
+
+Esse relacionamento foi implementado por meio de uma chave estrangeira (`ForeignKey`) no modelo `Cliente`, utilizando `on_delete=models.PROTECT` para preservar a integridade dos dados.
+
+Dessa forma, o sistema impede a exclusão de vendedores que possuem clientes vinculados, inclusive quando esses clientes estão inativos.
+
+### Validação dos dados
+
+O `VendedorSerializer` realiza a validação das informações enviadas à API, incluindo:
+
+- Remoção de espaços desnecessários no nome.
+- Verificação de um mínimo de três caracteres para o nome.
+- Validação de unicidade do nome conforme a restrição do modelo.
+
+Além disso, a API disponibiliza o campo `quantidade_clientes`, que apresenta o total de clientes ativos associados a cada vendedor.
+
+### Consulta de clientes por vendedor
+
+Foi implementada uma ação personalizada com o decorador `@action`, permitindo consultar os clientes ativos de determinado vendedor.
+
+Exemplo de requisição:
+
+`GET /api/vendedores/1/clientes/`
+
+A resposta é apresentada em formato JSON, contendo os clientes ativos vinculados ao vendedor informado.
+
+### Regras de exclusão
+
+A exclusão de vendedores segue as seguintes regras:
+
+- Vendedores sem clientes vinculados podem ser excluídos.
+- Vendedores com clientes vinculados não podem ser excluídos.
+- A tentativa de exclusão de um vendedor com clientes retorna uma mensagem de validação.
+- As operações de escrita exigem autenticação.
+
+Essas regras foram definidas para evitar inconsistências nos relacionamentos e preservar os dados dos clientes.
+
+### Testes automatizados
+
+Foram preparados testes automatizados utilizando `APITestCase`, do Django REST Framework, para verificar:
+
+- Listagem pública de vendedores.
+- Consulta individual de vendedores.
+- Cadastro com autenticação.
+- Bloqueio de cadastro sem autenticação.
+- Validação de nomes inválidos.
+- Atualização dos dados.
+- Exclusão de vendedores sem clientes.
+- Bloqueio de exclusão de vendedores com clientes vinculados.
+- Consulta de clientes por vendedor.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TesteCRUDVendedores -v 2
+```
+
+Para executar todos os testes da aplicação:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Tecnologias utilizadas nesta etapa
+
+- Python
+- Django
+- Django REST Framework
+- PostgreSQL
+- Django ORM
+- Git e GitHub
+
+### Considerações sobre a implementação
+
+O desenvolvimento do CRUD de vendedores permitiu aplicar conceitos de APIs REST, relacionamentos entre tabelas, validação de dados, autenticação, integridade referencial e testes automatizados.
+
+A funcionalidade também contribui para a organização dos dados da Distribuidora Vetor, permitindo consultar os clientes associados a cada vendedor e evitando a exclusão de registros que possuem vínculos com outras entidades.

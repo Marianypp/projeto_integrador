@@ -1,10 +1,27 @@
 
-from django.urls import path
+from django.urls import path, include
+
+from rest_framework.routers import DefaultRouter
 
 from .views import (
     status_api,
-    listar_clientes,
-    consultar_cliente
+    ClienteViewSet,
+    VendedorViewSet
+)
+
+
+router = DefaultRouter()
+
+router.register(
+    r"clientes",
+    ClienteViewSet,
+    basename="cliente"
+)
+
+router.register(
+    r"vendedores",
+    VendedorViewSet,
+    basename="vendedor"
 )
 
 
@@ -16,16 +33,7 @@ urlpatterns = [
     ),
 
     path(
-        "clientes/",
-        listar_clientes,
-        name="listar-clientes"
-    ),
-
-    path(
-        "clientes/<str:id_cliente>/",
-        consultar_cliente,
-        name="consultar-cliente"
+        "",
+        include(router.urls)
     ),
 ]
-
-
