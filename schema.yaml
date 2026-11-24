@@ -6,6 +6,70 @@ info:
     de clientes e vendedores, consultas agrupadas por bairro normalizado e vendedor
     responsável, utilizando dados tratados por um processo de ETL.
 paths:
+  /api/auditorias/:
+    get:
+      operationId: auditorias_list
+      description: Retorna o histórico das operações realizadas pela API. Acesso restrito
+        a administradores.
+      summary: Listar registros de auditoria
+      parameters:
+      - in: query
+        name: entidade
+        schema:
+          type: string
+        description: Cliente ou Vendedor.
+      - in: query
+        name: identificador
+        schema:
+          type: string
+        description: Identificador do registro auditado.
+      - in: query
+        name: operacao
+        schema:
+          type: string
+          enum:
+          - ATUALIZACAO
+          - CRIACAO
+          - EXCLUSAO
+          - INATIVACAO
+      tags:
+      - Auditoria
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditoriaAPI'
+          description: ''
+  /api/auditorias/{id}/:
+    get:
+      operationId: auditorias_retrieve
+      description: Consulta um registro específico do histórico de operações.
+      summary: Consultar registro de auditoria
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Auditoria da API.
+        required: true
+      tags:
+      - Auditoria
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditoriaAPI'
+          description: ''
   /api/clientes/:
     get:
       operationId: clientes_list
@@ -466,6 +530,54 @@ paths:
           description: ''
 components:
   schemas:
+    AuditoriaAPI:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        entidade:
+          type: string
+          readOnly: true
+        identificador_registro:
+          type: string
+          readOnly: true
+        operacao:
+          allOf:
+          - $ref: '#/components/schemas/OperacaoEnum'
+          readOnly: true
+        usuario:
+          type: integer
+          readOnly: true
+          nullable: true
+        usuario_nome:
+          type: string
+          readOnly: true
+        dados_anteriores:
+          readOnly: true
+        dados_posteriores:
+          readOnly: true
+        campos_alterados:
+          readOnly: true
+        metodo_http:
+          type: string
+          readOnly: true
+        data_registro:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - campos_alterados
+      - dados_anteriores
+      - dados_posteriores
+      - data_registro
+      - entidade
+      - id
+      - identificador_registro
+      - metodo_http
+      - operacao
+      - usuario
+      - usuario_nome
     BairroAgrupado:
       type: object
       properties:
@@ -634,6 +746,18 @@ components:
           type: string
       required:
       - erro
+    OperacaoEnum:
+      enum:
+      - CRIACAO
+      - ATUALIZACAO
+      - EXCLUSAO
+      - INATIVACAO
+      type: string
+      description: |-
+        * `CRIACAO` - Criação
+        * `ATUALIZACAO` - Atualização
+        * `EXCLUSAO` - Exclusão
+        * `INATIVACAO` - Inativação
     PatchedClienteEscrita:
       type: object
       properties:
@@ -751,3 +875,5 @@ tags:
   description: Gerenciamento dos vendedores.
 - name: Consultas
   description: Consultas agrupadas e gerenciais.
+- name: Auditoria
+  description: Histórico das operações realizadas pela API. Acesso restrito a administradores.

@@ -1,15 +1,13 @@
-
-
-from rest_framework import serializers
-
-from .models import Cliente, Vendedor
-
 from etl.normalizacao import (
     normalizar_cnpj,
     normalizar_telefone,
     normalizar_cep,
     normalizar_bairro
 )
+
+from .models import Cliente, Vendedor, AuditoriaAPI
+
+from rest_framework import serializers
 
 
 class ClienteSerializer(serializers.ModelSerializer):
@@ -277,3 +275,28 @@ class ConsultaVendedorSerializer(serializers.Serializer):
 class ErroConsultaSerializer(serializers.Serializer):
 
     erro = serializers.CharField()
+
+
+class AuditoriaAPISerializer(
+    serializers.ModelSerializer
+):
+
+    class Meta:
+
+        model = AuditoriaAPI
+
+        fields = [
+            "id",
+            "entidade",
+            "identificador_registro",
+            "operacao",
+            "usuario",
+            "usuario_nome",
+            "dados_anteriores",
+            "dados_posteriores",
+            "campos_alterados",
+            "metodo_http",
+            "data_registro",
+        ]
+
+        read_only_fields = fields

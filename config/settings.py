@@ -185,6 +185,14 @@ SPECTACULAR_SETTINGS = {
             "name": "Consultas",
             "description": "Consultas agrupadas e gerenciais."
         },
+        {
+            "name": "Auditoria",
+            "description": (
+                "Histórico das operações realizadas "
+                "pela API. Acesso restrito "
+                "a administradores."
+            )
+        },
     ],
 }
 

@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 
 class Vendedor(models.Model):
 
@@ -149,4 +149,85 @@ class Auditoria(models.Model):
     def __str__(self):
         return (
             f"{self.cliente_id} - {self.campo}"
+        )
+
+
+class AuditoriaAPI(models.Model):
+
+    class Operacao(models.TextChoices):
+        CRIACAO = "CRIACAO", "Criação"
+        ATUALIZACAO = "ATUALIZACAO", "Atualização"
+        EXCLUSAO = "EXCLUSAO", "Exclusão"
+        INATIVACAO = "INATIVACAO", "Inativação"
+
+    entidade = models.CharField(
+        max_length=50,
+        db_index=True
+    )
+
+    identificador_registro = models.CharField(
+        max_length=100,
+        db_index=True
+    )
+
+    operacao = models.CharField(
+        max_length=20,
+        choices=Operacao.choices
+    )
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="auditorias_api"
+    )
+
+    usuario_nome = models.CharField(
+        max_length=150
+    )
+
+    dados_anteriores = models.JSONField(
+        default=dict,
+        blank=True
+    )
+
+    dados_posteriores = models.JSONField(
+        default=dict,
+        blank=True
+    )
+
+    campos_alterados = models.JSONField(
+        default=list,
+        blank=True
+    )
+
+    metodo_http = models.CharField(
+        max_length=10
+    )
+
+    data_registro = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+
+        ordering = [
+            "-data_registro",
+            "-id"
+        ]
+
+        verbose_name = "Auditoria da API"
+
+        verbose_name_plural = (
+            "Auditorias da API"
+        )
+
+    def __str__(self):
+
+        return (
+            f"{self.entidade} - "
+            f"{self.identificador_registro} - "
+            f"{self.operacao}"
         )

@@ -7,7 +7,8 @@ from .views import (
     ClienteViewSet,
     VendedorViewSet,
     clientes_por_bairro,
-    clientes_por_vendedor
+    clientes_por_vendedor,
+    AuditoriaAPIViewSet
 )
 
 
@@ -23,6 +24,12 @@ router.register(
     r"vendedores",
     VendedorViewSet,
     basename="vendedor"
+)
+
+router.register(
+    r"auditorias",
+    AuditoriaAPIViewSet,
+    basename="auditoria"
 )
 
 

@@ -1,10 +1,18 @@
+from django.db import transaction
 from django.db.models import Count, Q
-
 from django.db.models.deletion import ProtectedError
 
-from rest_framework.exceptions import ValidationError
+from drf_spectacular.types import OpenApiTypes
 
-from django.db import transaction
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiParameter,
+    OpenApiExample,
+    OpenApiResponse,
+)
+
+from .models import Cliente, Vendedor, AuditoriaAPI
 
 from rest_framework import (
     viewsets,
@@ -17,14 +25,15 @@ from rest_framework.decorators import (
     permission_classes
 )
 
+from rest_framework.exceptions import ValidationError
+
 from rest_framework.permissions import (
     AllowAny,
-    IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly,
+    IsAdminUser
 )
 
 from rest_framework.response import Response
-
-from .models import Cliente, Vendedor
 
 from .serializers import (
     ClienteSerializer,
@@ -34,18 +43,13 @@ from .serializers import (
     ConsultaBairroSerializer,
     ConsultaVendedorSerializer,
     ErroConsultaSerializer,
+    AuditoriaAPISerializer,
 )
 
-from drf_spectacular.types import OpenApiTypes
-
-from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
-    OpenApiParameter,
-    OpenApiExample,
-    OpenApiResponse,
+from .services import (
+    capturar_dados,
+    registrar_auditoria
 )
-
 
 @extend_schema(
     tags=["Status"],
@@ -179,6 +183,7 @@ class ClienteViewSet(viewsets.ModelViewSet):
 
         return ClienteSerializer
 
+    
     def create(self, request, *args, **kwargs):
 
         serializer = self.get_serializer(
@@ -190,50 +195,97 @@ class ClienteViewSet(viewsets.ModelViewSet):
         )
 
         with transaction.atomic():
+
             cliente = serializer.save()
 
-        resposta = ClienteSerializer(
-            cliente
-        )
+            registrar_auditoria(
+                request=request,
+                entidade="Cliente",
+                identificador=cliente.pk,
+                operacao=AuditoriaAPI.Operacao.CRIACAO,
+                dados_anteriores={},
+                dados_posteriores=capturar_dados(
+                    cliente
+                )
+            )
 
         return Response(
-            resposta.data,
+            ClienteSerializer(cliente).data,
             status=status.HTTP_201_CREATED
         )
 
+
+    
     def update(self, request, *args, **kwargs):
 
-        parcial = kwargs.pop("partial", False)
-
-        cliente = self.get_object()
-
-        serializer = ClienteEscritaSerializer(
-            cliente,
-            data=request.data,
-            partial=parcial
-        )
-
-        serializer.is_valid(
-            raise_exception=True
+        parcial = kwargs.pop(
+            "partial",
+            False
         )
 
         with transaction.atomic():
+
+            cliente = self.get_object()
+
+            cliente = (
+                Cliente.objects
+                .select_for_update()
+                .get(pk=cliente.pk)
+            )
+
+            dados_anteriores = capturar_dados(
+                cliente
+            )
+
+            serializer = self.get_serializer(
+                cliente,
+                data=request.data,
+                partial=parcial
+            )
+
+            serializer.is_valid(
+                raise_exception=True
+            )
+
             cliente = serializer.save()
 
-        resposta = ClienteSerializer(
-            cliente
-        )
+            dados_posteriores = capturar_dados(
+                cliente
+            )
+
+            registrar_auditoria(
+                request=request,
+                entidade="Cliente",
+                identificador=cliente.pk,
+                operacao=(
+                    AuditoriaAPI.Operacao.ATUALIZACAO
+                ),
+                dados_anteriores=dados_anteriores,
+                dados_posteriores=dados_posteriores
+            )
 
         return Response(
-            resposta.data,
+            ClienteSerializer(cliente).data,
             status=status.HTTP_200_OK
         )
 
+
+    
     def destroy(self, request, *args, **kwargs):
 
-        cliente = self.get_object()
-
         with transaction.atomic():
+
+            cliente = self.get_object()
+
+            cliente = (
+                Cliente.objects
+                .select_for_update()
+                .get(pk=cliente.pk)
+            )
+
+            dados_anteriores = capturar_dados(
+                cliente
+            )
 
             cliente.ativo = False
 
@@ -241,9 +293,25 @@ class ClienteViewSet(viewsets.ModelViewSet):
                 update_fields=["ativo"]
             )
 
+            dados_posteriores = capturar_dados(
+                cliente
+            )
+
+            registrar_auditoria(
+                request=request,
+                entidade="Cliente",
+                identificador=cliente.pk,
+                operacao=(
+                    AuditoriaAPI.Operacao.INATIVACAO
+                ),
+                dados_anteriores=dados_anteriores,
+                dados_posteriores=dados_posteriores
+            )
+
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
+
 
 
 @extend_schema_view(
@@ -320,20 +388,48 @@ class VendedorViewSet(viewsets.ModelViewSet):
         )
 
 
+    
     def perform_destroy(self, instance):
 
         try:
+
             with transaction.atomic():
-                instance.delete()
+
+                vendedor = (
+                    Vendedor.objects
+                    .select_for_update()
+                    .get(pk=instance.pk)
+                )
+
+                identificador = vendedor.pk
+
+                dados_anteriores = capturar_dados(
+                    vendedor
+                )
+
+                vendedor.delete()
+
+                registrar_auditoria(
+                    request=self.request,
+                    entidade="Vendedor",
+                    identificador=identificador,
+                    operacao=(
+                        AuditoriaAPI.Operacao.EXCLUSAO
+                    ),
+                    dados_anteriores=dados_anteriores,
+                    dados_posteriores={}
+                )
 
         except ProtectedError:
 
             raise ValidationError({
                 "erro": (
-                    "Não é possível excluir este vendedor "
-                    "porque existem clientes vinculados."
+                    "Não é possível excluir este "
+                    "vendedor porque existem "
+                    "clientes vinculados."
                 )
             })
+
 
 
     
@@ -374,6 +470,75 @@ class VendedorViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+
+    def perform_create(self, serializer):
+
+        with transaction.atomic():
+
+            vendedor = serializer.save()
+
+            registrar_auditoria(
+                request=self.request,
+                entidade="Vendedor",
+                identificador=vendedor.pk,
+                operacao=AuditoriaAPI.Operacao.CRIACAO,
+                dados_anteriores={},
+                dados_posteriores=capturar_dados(
+                    vendedor
+                )
+            )
+
+
+    def update(self, request, *args, **kwargs):
+
+        parcial = kwargs.pop(
+            "partial",
+            False
+        )
+
+        with transaction.atomic():
+
+            vendedor = self.get_object()
+
+            vendedor = (
+                Vendedor.objects
+                .select_for_update()
+                .get(pk=vendedor.pk)
+            )
+
+            dados_anteriores = capturar_dados(
+                vendedor
+            )
+
+            serializer = self.get_serializer(
+                vendedor,
+                data=request.data,
+                partial=parcial
+            )
+
+            serializer.is_valid(
+                raise_exception=True
+            )
+
+            vendedor = serializer.save()
+
+            registrar_auditoria(
+                request=request,
+                entidade="Vendedor",
+                identificador=vendedor.pk,
+                operacao=(
+                    AuditoriaAPI.Operacao.ATUALIZACAO
+                ),
+                dados_anteriores=dados_anteriores,
+                dados_posteriores=capturar_dados(
+                    vendedor
+                )
+            )
+
+        return Response(
+            VendedorSerializer(vendedor).data,
+            status=status.HTTP_200_OK
+        )
 
 
 
@@ -604,3 +769,117 @@ def clientes_por_vendedor(request):
     })
 
 
+@extend_schema_view(
+
+    list=extend_schema(
+        tags=["Auditoria"],
+        summary="Listar registros de auditoria",
+        description=(
+            "Retorna o histórico das operações "
+            "realizadas pela API. "
+            "Acesso restrito a administradores."
+        ),
+
+        parameters=[
+            OpenApiParameter(
+                name="entidade",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Cliente ou Vendedor."
+            ),
+
+            OpenApiParameter(
+                name="operacao",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                enum=[
+                    "CRIACAO",
+                    "ATUALIZACAO",
+                    "EXCLUSAO",
+                    "INATIVACAO"
+                ]
+            ),
+
+            OpenApiParameter(
+                name="identificador",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description=(
+                    "Identificador do registro auditado."
+                )
+            )
+        ]
+    ),
+
+    retrieve=extend_schema(
+        tags=["Auditoria"],
+        summary="Consultar registro de auditoria",
+        description=(
+            "Consulta um registro específico "
+            "do histórico de operações."
+        )
+    )
+)
+class AuditoriaAPIViewSet(
+    viewsets.ReadOnlyModelViewSet
+):
+
+    serializer_class = AuditoriaAPISerializer
+
+    permission_classes = [
+        IsAdminUser
+    ]
+
+    def get_queryset(self):
+
+        auditorias = (
+            AuditoriaAPI.objects.all()
+        )
+
+        if self.action == "list":
+
+            entidade = (
+                self.request.query_params.get(
+                    "entidade"
+                )
+            )
+
+            operacao = (
+                self.request.query_params.get(
+                    "operacao"
+                )
+            )
+
+            identificador = (
+                self.request.query_params.get(
+                    "identificador"
+                )
+            )
+
+            if entidade:
+
+                auditorias = auditorias.filter(
+                    entidade__iexact=entidade.strip()
+                )
+
+            if operacao:
+
+                auditorias = auditorias.filter(
+                    operacao__iexact=operacao.strip()
+                )
+
+            if identificador:
+
+                auditorias = auditorias.filter(
+                    identificador_registro=(
+                        identificador.strip()
+                    )
+                )
+
+        return auditorias.order_by(
+            "-data_registro",
+            "-id"
+        )

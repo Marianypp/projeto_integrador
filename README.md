@@ -388,6 +388,7 @@ As consultas agrupadas permitem utilizar os dados normalizados durante o ETL par
 
 A implementação demonstra a integração entre tratamento de dados, persistência em banco relacional e disponibilização de informações por uma API REST.
 
+
 ## Autenticação e segurança da API
 
 A API REST da Distribuidora Vetor utiliza mecanismos de autenticação do Django REST Framework para proteger operações de escrita.
@@ -464,10 +465,10 @@ A documentação permite visualizar os endpoints disponíveis, os métodos HTTP,
 
 Após iniciar o servidor Django, as interfaces podem ser acessadas pelos seguintes endereços:
 
-| Interface | Endereço |
-|---|---|
-| Swagger UI | http://127.0.0.1:8000/api/docs/ |
-| ReDoc | http://127.0.0.1:8000/api/redoc/ |
+| Interface       | Endereço                          |
+|-----------------|-----------------------------------|
+| Swagger UI      | http://127.0.0.1:8000/api/docs/   |
+| ReDoc           | http://127.0.0.1:8000/api/redoc/  |
 | Esquema OpenAPI | http://127.0.0.1:8000/api/schema/ |
 
 ### Organização dos endpoints
@@ -544,3 +545,120 @@ python manage.py test clientes -v 2
 ### Considerações
 
 A documentação automática contribui para a manutenção, organização e integração da API REST, permitindo que desenvolvedores e avaliadores compreendam e testem as funcionalidades implementadas no Projeto Primora.
+
+## Auditoria e rastreabilidade das operações da API
+
+Nesta etapa do Projeto Primora, foi implementado um mecanismo de auditoria para registrar as operações de criação, atualização, exclusão e inativação realizadas pela API REST da Distribuidora Vetor.
+
+O objetivo é garantir maior rastreabilidade das alterações, permitindo identificar os dados anteriores e posteriores, os campos modificados, o usuário responsável e a data e o horário da operação.
+
+### Modelo de auditoria
+
+Foi criado o modelo `AuditoriaAPI`, responsável pelo armazenamento do histórico das operações realizadas nos endpoints de clientes e vendedores.
+
+Cada registro de auditoria contém:
+
+- Entidade afetada.
+- Identificador do registro.
+- Tipo de operação.
+- Usuário responsável.
+- Nome do usuário no momento da operação.
+- Dados anteriores.
+- Dados posteriores.
+- Campos alterados.
+- Método HTTP.
+- Data e horário do registro.
+
+### Tipos de operações auditadas
+
+| Operação    | Descrição                               |
+|-------------|-----------------------------------------|
+| CRIACAO     | Cadastro de um novo cliente ou vendedor |
+| ATUALIZACAO | Alteração dos dados de um registro      |
+| INATIVACAO  | Exclusão lógica de um cliente           |
+| EXCLUSAO    | Exclusão física de um vendedor          |
+
+Atualizações que não modificam efetivamente os dados não geram novos registros de auditoria.
+
+### Camada de serviços
+
+Foi criado o arquivo `clientes/services.py`, responsável por centralizar as funções de captura de dados, identificação dos campos alterados e registro das auditorias.
+
+Essa organização contribui para a reutilização do código e a separação de responsabilidades.
+
+### Integridade das operações
+
+As operações de alteração e registro de auditoria utilizam `transaction.atomic()`, garantindo que ambas sejam concluídas dentro da mesma transação.
+
+Caso ocorra uma falha durante o registro da auditoria, a alteração correspondente será desfeita.
+
+Também foi utilizado `select_for_update()` para bloquear registros durante determinadas operações de atualização e exclusão.
+
+### Endpoints de auditoria
+
+| Método | Endpoint                | Descrição                       | Acesso        |
+|--------|-------------------------|---------------------------------|---------------|
+| GET    | `/api/auditorias/`      | Lista os registros de auditoria | Administrador |
+| GET    | `/api/auditorias/{id}/` | Consulta um registro específico | Administrador |
+
+### Filtros disponíveis
+
+- `entidade`: Cliente ou Vendedor.
+- `operacao`: tipo de operação realizada.
+- `identificador`: identificador do registro auditado.
+
+Exemplos:
+
+`GET /api/auditorias/?entidade=Cliente`
+
+`GET /api/auditorias/?operacao=ATUALIZACAO`
+
+`GET /api/auditorias/?entidade=Cliente&identificador=CLI001`
+
+### Segurança
+
+Os endpoints de auditoria utilizam `ReadOnlyModelViewSet` e `IsAdminUser`, permitindo somente consultas realizadas por usuários autenticados com `is_staff=True`.
+
+O histórico também está disponível no Django Admin para usuários com permissão de visualização.
+
+A criação manual, a atualização e a exclusão dos registros de auditoria foram bloqueadas nessas interfaces.
+
+### Auditoria do ETL e da API
+
+A auditoria das operações da API foi implementada separadamente da auditoria do ETL.
+
+Enquanto a auditoria do ETL registra as transformações realizadas nos dados originais, a auditoria da API registra as alterações realizadas pelos usuários autenticados.
+
+A implementação atual não contempla alterações realizadas diretamente pelo banco de dados, Django Shell ou edição de clientes e vendedores pelo Django Admin.
+
+### Testes automatizados
+
+Foram implementados testes para verificar:
+
+- Auditoria de cadastro de clientes e vendedores.
+- Auditoria de atualização de clientes e vendedores.
+- Auditoria de inativação de clientes.
+- Auditoria de exclusão de vendedores.
+- Preservação das regras de integridade referencial.
+- Identificação de atualizações sem mudanças efetivas.
+- Controle de acesso ao histórico.
+- Bloqueio de operações de escrita no endpoint de auditoria.
+- Rollback da transação em caso de falha no registro da auditoria.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TesteAuditoriaAPI -v 2
+```
+
+Para executar todos os testes da aplicação:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Considerações
+
+A implementação da auditoria contribui para a rastreabilidade, a integridade e a confiabilidade das informações gerenciadas pela API REST.
+
+Em um ambiente de produção, deverão ser considerados mecanismos adicionais de proteção do histórico, controle de acesso, retenção de dados e adequação à Lei Geral de Proteção de Dados Pessoais (LGPD).

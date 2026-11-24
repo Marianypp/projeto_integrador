@@ -1,16 +1,13 @@
-from django.urls import reverse
-
-from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
-
-from django.test import TestCase
-from django.db.models.deletion import ProtectedError
-
-from .models import Cliente, Vendedor, Auditoria
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.db.models.deletion import ProtectedError
+from django.test import TestCase
+from django.urls import reverse
+from .models import Cliente, Vendedor, Auditoria, AuditoriaAPI
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APITestCase
+from unittest.mock import patch
 
 
 class TesteBancoDados(TestCase):
@@ -1202,4 +1199,463 @@ class TesteDocumentacaoAPI(APITestCase):
         self.assertIn(
             "tokenAuth",
             mecanismos
+        )
+
+
+class TesteAuditoriaAPI(APITestCase):
+
+    def setUp(self):
+
+        self.usuario = User.objects.create_user(
+            username="usuario_auditoria",
+            password="SenhaTeste123!"
+        )
+
+        self.admin = User.objects.create_user(
+            username="admin_auditoria",
+            password="SenhaTeste123!",
+            is_staff=True
+        )
+
+        self.vendedor = Vendedor.objects.create(
+            nome="Vendedor Original"
+        )
+
+        self.cliente = Cliente.objects.create(
+            id_cliente="AUD001",
+            razao_social="Empresa Auditoria",
+            telefone="61988887777",
+            bairro="Águas Claras",
+            cidade="Brasília",
+            uf="DF",
+            vendedor=self.vendedor,
+            ativo=True
+        )
+
+        self.url_clientes = reverse(
+            "cliente-list"
+        )
+
+        self.url_cliente = reverse(
+            "cliente-detail",
+            args=[self.cliente.pk]
+        )
+
+        self.url_vendedores = reverse(
+            "vendedor-list"
+        )
+
+        self.url_auditorias = reverse(
+            "auditoria-list"
+        )
+
+    def test_auditoria_criacao_cliente(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        resposta = self.client.post(
+            self.url_clientes,
+            {
+                "id_cliente": "AUD002",
+                "razao_social": "Empresa Nova",
+                "telefone": "61977776666",
+                "bairro": "Águas Claras",
+                "cidade": "Brasília",
+                "uf": "DF",
+                "vendedor": self.vendedor.pk
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_201_CREATED,
+            resposta.data
+        )
+
+        auditoria = AuditoriaAPI.objects.get(
+            entidade="Cliente",
+            identificador_registro="AUD002"
+        )
+
+        self.assertEqual(
+            auditoria.operacao,
+            "CRIACAO"
+        )
+
+        self.assertEqual(
+            auditoria.dados_anteriores,
+            {}
+        )
+
+        self.assertEqual(
+            auditoria.dados_posteriores[
+                "id_cliente"
+            ],
+            "AUD002"
+        )
+
+        self.assertEqual(
+            auditoria.usuario,
+            self.usuario
+        )
+
+    def test_auditoria_atualizacao_cliente(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        resposta = self.client.patch(
+            self.url_cliente,
+            {
+                "telefone": "(61) 97777-6666"
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK,
+            resposta.data
+        )
+
+        auditoria = AuditoriaAPI.objects.get(
+            entidade="Cliente",
+            identificador_registro="AUD001"
+        )
+
+        self.assertEqual(
+            auditoria.operacao,
+            "ATUALIZACAO"
+        )
+
+        self.assertEqual(
+            auditoria.dados_anteriores["telefone"],
+            "61988887777"
+        )
+
+        self.assertEqual(
+            auditoria.dados_posteriores["telefone"],
+            "61977776666"
+        )
+
+        self.assertEqual(
+            auditoria.campos_alterados,
+            ["telefone"]
+        )
+
+        self.assertEqual(
+            auditoria.usuario,
+            self.usuario
+        )
+
+    def test_auditoria_inativacao_cliente(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        resposta = self.client.delete(
+            self.url_cliente
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+
+        auditoria = AuditoriaAPI.objects.get(
+            entidade="Cliente",
+            identificador_registro="AUD001"
+        )
+
+        self.assertEqual(
+            auditoria.operacao,
+            "INATIVACAO"
+        )
+
+        self.assertTrue(
+            auditoria.dados_anteriores["ativo"]
+        )
+
+        self.assertFalse(
+            auditoria.dados_posteriores["ativo"]
+        )
+
+        self.cliente.refresh_from_db()
+
+        self.assertFalse(
+            self.cliente.ativo
+        )
+
+    def test_auditoria_criacao_vendedor(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {
+                "nome": "Vendedor Novo"
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_201_CREATED,
+            resposta.data
+        )
+
+        auditoria = AuditoriaAPI.objects.get(
+            entidade="Vendedor",
+            operacao="CRIACAO"
+        )
+
+        self.assertEqual(
+            auditoria.dados_posteriores["nome"],
+            "Vendedor Novo"
+        )
+
+        self.assertEqual(
+            auditoria.metodo_http,
+            "POST"
+        )
+
+    def test_auditoria_atualizacao_vendedor(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        url = reverse(
+            "vendedor-detail",
+            args=[self.vendedor.pk]
+        )
+
+        resposta = self.client.patch(
+            url,
+            {"nome": "Vendedor Alterado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK,
+            resposta.data
+        )
+
+        auditoria = AuditoriaAPI.objects.get(
+            entidade="Vendedor",
+            operacao="ATUALIZACAO"
+        )
+
+        self.assertEqual(
+            auditoria.dados_anteriores["nome"],
+            "Vendedor Original"
+        )
+
+        self.assertEqual(
+            auditoria.dados_posteriores["nome"],
+            "Vendedor Alterado"
+        )
+
+        self.assertEqual(
+            auditoria.campos_alterados,
+            ["nome"]
+        )
+
+    def test_auditoria_exclusao_vendedor(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        vendedor = Vendedor.objects.create(
+            nome="Vendedor Sem Clientes"
+        )
+
+        identificador = vendedor.pk
+
+        url = reverse(
+            "vendedor-detail",
+            args=[identificador]
+        )
+
+        resposta = self.client.delete(url)
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+
+        auditoria = AuditoriaAPI.objects.get(
+            entidade="Vendedor",
+            operacao="EXCLUSAO"
+        )
+
+        self.assertEqual(
+            auditoria.identificador_registro,
+            str(identificador)
+        )
+
+        self.assertEqual(
+            auditoria.dados_anteriores["nome"],
+            "Vendedor Sem Clientes"
+        )
+
+        self.assertEqual(
+            auditoria.dados_posteriores,
+            {}
+        )
+
+        self.assertFalse(
+            Vendedor.objects.filter(
+                pk=identificador
+            ).exists()
+        )
+
+    def test_exclusao_bloqueada_sem_auditoria(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        url = reverse(
+            "vendedor-detail",
+            args=[self.vendedor.pk]
+        )
+
+        resposta = self.client.delete(url)
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertEqual(
+            AuditoriaAPI.objects.count(),
+            0
+        )
+
+    def test_atualizacao_sem_mudanca(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        resposta = self.client.patch(
+            self.url_cliente,
+            {
+                "telefone": "61988887777"
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK,
+            resposta.data
+        )
+
+        self.assertEqual(
+            AuditoriaAPI.objects.count(),
+            0
+        )
+
+    def test_auditoria_sem_autenticacao(self):
+
+        resposta = self.client.get(
+            self.url_auditorias
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+    def test_auditoria_usuario_comum(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        resposta = self.client.get(
+            self.url_auditorias
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    def test_auditoria_administrador(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        resposta = self.client.get(
+            self.url_auditorias
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_auditoria_nao_permite_cadastro(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        resposta = self.client.post(
+            self.url_auditorias,
+            {},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    def test_falha_auditoria_desfaz_atualizacao(self):
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
+        with patch(
+            "clientes.views.registrar_auditoria",
+            side_effect=RuntimeError(
+                "Falha simulada na auditoria"
+            )
+        ):
+
+            with self.assertRaises(RuntimeError):
+
+                self.client.patch(
+                    self.url_cliente,
+                    {
+                        "telefone": "61977776666"
+                    },
+                    format="json"
+                )
+
+        self.cliente.refresh_from_db()
+
+        self.assertEqual(
+            self.cliente.telefone,
+            "61988887777"
+        )
+
+        self.assertEqual(
+            AuditoriaAPI.objects.count(),
+            0
         )

@@ -4,7 +4,8 @@ from django.contrib import admin
 from .models import (
     Cliente,
     Vendedor,
-    Auditoria
+    Auditoria,
+    AuditoriaAPI
 )
 
 
@@ -82,3 +83,69 @@ class AuditoriaAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
+@admin.register(AuditoriaAPI)
+class AuditoriaAPIAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "entidade",
+        "identificador_registro",
+        "operacao",
+        "usuario_nome",
+        "metodo_http",
+        "data_registro"
+    )
+
+    list_filter = (
+        "entidade",
+        "operacao",
+        "metodo_http",
+        "data_registro"
+    )
+
+    search_fields = (
+        "identificador_registro",
+        "usuario_nome",
+        "entidade"
+    )
+
+    readonly_fields = (
+        "entidade",
+        "identificador_registro",
+        "operacao",
+        "usuario",
+        "usuario_nome",
+        "dados_anteriores",
+        "dados_posteriores",
+        "campos_alterados",
+        "metodo_http",
+        "data_registro"
+    )
+
+    ordering = (
+        "-data_registro",
+        "-id"
+    )
+
+    list_per_page = 25
+
+    def has_add_permission(self, request):
+
+        return False
+
+    def has_change_permission(
+        self,
+        request,
+        obj=None
+    ):
+
+        return False
+
+    def has_delete_permission(
+        self,
+        request,
+        obj=None
+    ):
+
+        return False
