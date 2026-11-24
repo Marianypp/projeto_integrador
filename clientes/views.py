@@ -11,6 +11,8 @@ from django_filters.rest_framework import (
     DjangoFilterBackend
 )
 
+from django.shortcuts import get_object_or_404
+
 from rest_framework.filters import (
     SearchFilter,
     OrderingFilter
@@ -32,6 +34,8 @@ from .pagination import (
     PaginacaoPadrao,
     PaginacaoAuditoria
 )
+
+from .permissions import PermissaoGerenciamento
 
 from rest_framework import (
     viewsets,
@@ -102,9 +106,13 @@ def status_api(request):
         tags=["Clientes"],
         summary="Listar clientes ativos",
         description=(
-            "Retorna os clientes ativos cadastrados "
-            "na Distribuidora Vetor."
+            "Retorna uma lista paginada de clientes "
+            "ativos. Requer autenticação."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         responses={
             200: ClienteSerializer(many=True)
         }
@@ -117,6 +125,10 @@ def status_api(request):
             "Consulta um cliente ativo pelo "
             "identificador."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         responses={
             200: ClienteSerializer
         }
@@ -129,6 +141,10 @@ def status_api(request):
             "Cadastra um novo cliente. "
             "Exige autenticação."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         request=ClienteEscritaSerializer,
         responses={
             201: ClienteSerializer
@@ -142,6 +158,10 @@ def status_api(request):
             "Atualiza os dados de um cliente. "
             "Exige autenticação."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         request=ClienteEscritaSerializer,
         responses={
             200: ClienteSerializer
@@ -155,6 +175,10 @@ def status_api(request):
             "Atualiza somente os campos informados. "
             "Exige autenticação."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         request=ClienteEscritaSerializer,
         responses={
             200: ClienteSerializer
@@ -169,6 +193,10 @@ def status_api(request):
             "alterando o campo ativo para False. "
             "Exige autenticação."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         responses={
             204: None
         }
@@ -177,8 +205,8 @@ def status_api(request):
 class ClienteViewSet(viewsets.ModelViewSet):
 
     permission_classes = [
-        IsAuthenticatedOrReadOnly
-    ]
+    PermissaoGerenciamento
+]
 
     lookup_field = "id_cliente"
 
@@ -276,12 +304,17 @@ class ClienteViewSet(viewsets.ModelViewSet):
 
         with transaction.atomic():
 
-            cliente = self.get_object()
-
-            cliente = (
+            cliente = get_object_or_404(
                 Cliente.objects
                 .select_for_update()
-                .get(pk=cliente.pk)
+                .filter(ativo=True),
+
+                id_cliente=self.kwargs["id_cliente"]
+            )
+
+            self.check_object_permissions(
+                request,
+                cliente
             )
 
             dados_anteriores = capturar_dados(
@@ -326,12 +359,17 @@ class ClienteViewSet(viewsets.ModelViewSet):
 
         with transaction.atomic():
 
-            cliente = self.get_object()
-
-            cliente = (
+            cliente = get_object_or_404(
                 Cliente.objects
                 .select_for_update()
-                .get(pk=cliente.pk)
+                .filter(ativo=True),
+
+                id_cliente=self.kwargs["id_cliente"]
+            )
+
+            self.check_object_permissions(
+                request,
+                cliente
             )
 
             dados_anteriores = capturar_dados(
@@ -371,32 +409,51 @@ class ClienteViewSet(viewsets.ModelViewSet):
         tags=["Vendedores"],
         summary="Listar vendedores",
         description=(
-            "Retorna os vendedores cadastrados e "
-            "a quantidade de clientes ativos."
-        )
+            "Retorna uma lista paginada de clientes ativos. Requer autenticação."
+        ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
     ),
 
     retrieve=extend_schema(
         tags=["Vendedores"],
-        summary="Consultar vendedor"
+        summary="Consultar vendedor",
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
     ),
 
     create=extend_schema(
         tags=["Vendedores"],
         summary="Cadastrar vendedor",
-        description="Exige autenticação."
+        description="Exige autenticação.",
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
     ),
 
     update=extend_schema(
         tags=["Vendedores"],
         summary="Atualizar vendedor",
-        description="Exige autenticação."
+        description="Exige autenticação.",
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
     ),
 
     partial_update=extend_schema(
         tags=["Vendedores"],
         summary="Atualizar vendedor parcialmente",
-        description="Exige autenticação."
+        description="Exige autenticação.",
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
     ),
 
     destroy=extend_schema(
@@ -406,6 +463,10 @@ class ClienteViewSet(viewsets.ModelViewSet):
             "Exclui um vendedor sem clientes vinculados. "
             "Exige autenticação."
         ),
+        auth=[
+            {"tokenAuth": []},
+            {"cookieAuth": []}
+        ],
         responses={
             204: None,
             400: OpenApiResponse(
@@ -419,8 +480,8 @@ class ClienteViewSet(viewsets.ModelViewSet):
 class VendedorViewSet(viewsets.ModelViewSet):
 
     permission_classes = [
-        IsAuthenticatedOrReadOnly
-    ]
+    PermissaoGerenciamento
+]
 
     serializer_class = VendedorSerializer
 
@@ -473,10 +534,15 @@ class VendedorViewSet(viewsets.ModelViewSet):
 
             with transaction.atomic():
 
-                vendedor = (
-                    Vendedor.objects
-                    .select_for_update()
-                    .get(pk=instance.pk)
+                vendedor = get_object_or_404(
+                    Vendedor.objects.select_for_update(),
+
+                    pk=instance.pk
+                )
+
+                self.check_object_permissions(
+                    self.request,
+                    vendedor
                 )
 
                 identificador = vendedor.pk
@@ -596,12 +662,15 @@ class VendedorViewSet(viewsets.ModelViewSet):
 
         with transaction.atomic():
 
-            vendedor = self.get_object()
+            vendedor = get_object_or_404(
+                Vendedor.objects.select_for_update(),
 
-            vendedor = (
-                Vendedor.objects
-                .select_for_update()
-                .get(pk=vendedor.pk)
+                pk=self.kwargs["pk"]
+            )
+
+            self.check_object_permissions(
+                request,
+                vendedor
             )
 
             dados_anteriores = capturar_dados(
@@ -823,15 +892,13 @@ def clientes_por_vendedor(request):
                 raise ValueError
 
         except ValueError:
-            return Response(
-                {
-                    "erro": (
-                        "vendedor_id deve ser "
-                        "um número inteiro positivo."
-                    )
-                },
-                status=400
-            )
+
+            raise ValidationError({
+                "erro": (
+                    "vendedor_id deve ser um "
+                    "número inteiro positivo."
+                )
+            })
 
         vendedores = vendedores.filter(
             pk=identificador

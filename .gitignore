@@ -2,15 +2,26 @@
 venv/
 .venv/
 
-# Variáveis de ambiente
-.env
+# Arquivos de log
+*.log
 
-# Arquivos temporários do Python
+# Arquivos Python
 __pycache__/
 *.pyc
+*.py[cod]
 
-# Banco SQLite local
+# Banco de dados local
 db.sqlite3
 
-# Configurações do editor
+# Configuracoes locais de editores
 .vscode/
+.idea/
+
+# Testes e cobertura
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Variáveis de ambiente
+.env
+.env.*

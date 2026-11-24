@@ -207,7 +207,7 @@ class VendedorSerializer(serializers.ModelSerializer):
         ]
 
     
-    def get_quantidade_clientes(self, obj):
+    def get_quantidade_clientes(self, obj) -> int:
 
         if hasattr(obj, "total_clientes_ativos"):
             return obj.total_clientes_ativos
@@ -275,6 +275,14 @@ class ConsultaVendedorSerializer(serializers.Serializer):
 class ErroConsultaSerializer(serializers.Serializer):
 
     erro = serializers.CharField()
+
+    status_code = serializers.IntegerField(
+        required=False
+    )
+
+    mensagem = serializers.CharField(
+        required=False
+    )
 
 
 class AuditoriaAPISerializer(

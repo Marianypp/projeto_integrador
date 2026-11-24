@@ -95,7 +95,7 @@ paths:
   /api/clientes/:
     get:
       operationId: clientes_list
-      description: Retorna os clientes ativos cadastrados na Distribuidora Vetor.
+      description: Retorna uma lista paginada de clientes ativos. Requer autenticação.
       summary: Listar clientes ativos
       parameters:
       - in: query
@@ -161,7 +161,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -214,7 +213,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -421,7 +419,7 @@ paths:
   /api/vendedores/:
     get:
       operationId: vendedores_list
-      description: Retorna os vendedores cadastrados e a quantidade de clientes ativos.
+      description: Retorna uma lista paginada de clientes ativos. Requer autenticação.
       summary: Listar vendedores
       parameters:
       - in: query
@@ -457,7 +455,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -509,7 +506,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -636,7 +632,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -860,6 +855,10 @@ components:
       properties:
         erro:
           type: string
+        status_code:
+          type: integer
+        mensagem:
+          type: string
       required:
       - erro
     OperacaoEnum:
@@ -997,7 +996,7 @@ components:
           type: string
           maxLength: 150
         quantidade_clientes:
-          type: string
+          type: integer
           readOnly: true
     StatusAPI:
       type: object
@@ -1022,7 +1021,7 @@ components:
           type: string
           maxLength: 150
         quantidade_clientes:
-          type: string
+          type: integer
           readOnly: true
       required:
       - id

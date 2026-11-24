@@ -3,24 +3,36 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from django.core.exceptions import (
+    ImproperlyConfigured
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%((q4_#vw#vuohz_8)x3da-8ovm$&yh11f_cccfo&@k3mt__*f'
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "A variável SECRET_KEY não foi configurada."
+    )
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (
+    os.getenv("DEBUG", "False")
+    .strip()
+    .lower()
+    == "true"
+)
 
-ALLOWED_HOSTS = []
-
-
-# Application definition
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "localhost,127.0.0.1"
+    ).split(",")
+    if host.strip()
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -145,6 +157,10 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": (
         "drf_spectacular.openapi.AutoSchema"
     ),
+
+    "EXCEPTION_HANDLER": (
+        "clientes.exceptions.tratamento_excecoes"
+    ),
 }
 
 
@@ -195,4 +211,21 @@ SPECTACULAR_SETTINGS = {
     ],
 }
 
+AMBIENTE_PRODUCAO = (
+    os.getenv("AMBIENTE_PRODUCAO", "False")
+    .strip()
+    .lower()
+    == "true"
+)
 
+if AMBIENTE_PRODUCAO:
+
+    DEBUG = False
+
+    SECURE_SSL_REDIRECT = True
+
+    SESSION_COOKIE_SECURE = True
+
+    CSRF_COOKIE_SECURE = True
+
+    SECURE_HSTS_SECONDS = 3600

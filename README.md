@@ -810,3 +810,92 @@ python manage.py spectacular --file schema.yaml --validate
 ### Considerações
 
 A implementação desses recursos contribui para a escalabilidade, a organização e a eficiência da API REST, preparando o sistema para trabalhar com volumes maiores de dados e facilitando sua integração com aplicações frontend.
+
+## Segurança e controle de acesso
+
+A API REST do Projeto Primora utiliza autenticação por token, disponibilizada pelo Django REST Framework, e regras personalizadas de autorização para proteger as informações cadastrais da Distribuidora Vetor.
+
+### Perfis de acesso
+
+Foram definidos quatro níveis de acesso:
+
+| Perfil                    | Permissões                                                           |
+|---------------------------|----------------------------------------------------------------------|
+| Visitante                 | Acesso ao status da API, documentação e consultas agrupadas públicas |
+| Usuário autenticado comum | Consulta de clientes e vendedores                                    |
+| Operador                  | Consulta, cadastro, atualização e exclusão de registros              |
+| Administrador             | Gerenciamento de registros e consulta das auditorias                 |
+
+O controle de acesso dos operadores utiliza o sistema de grupos nativo do Django. Os usuários responsáveis pelo gerenciamento dos registros devem pertencer ao grupo `Operadores` ou possuir perfil administrativo.
+
+As operações de exclusão continuam sujeitas às regras de integridade referencial e exclusão lógica.
+
+### Autenticação
+
+A autenticação por token utiliza o seguinte cabeçalho HTTP:
+
+`Authorization: Token SEU_TOKEN`
+
+Os tokens são individuais e não devem ser compartilhados ou armazenados no repositório.
+
+### Proteção das informações
+
+As consultas cadastrais de clientes e vendedores exigem autenticação. Os endpoints de consultas agrupadas por bairro e vendedor permanecem públicos, preservando os requisitos de disponibilização de informações consolidadas.
+
+As auditorias da API são restritas a usuários com `is_staff=True`.
+
+### Variáveis de ambiente
+
+As configurações sensíveis são armazenadas em variáveis de ambiente, incluindo a chave secreta do Django e as credenciais do PostgreSQL.
+
+O arquivo `.env` não deve ser versionado.
+
+O arquivo `.env.example` disponibiliza um modelo de configuração para os integrantes da equipe, sem incluir credenciais reais.
+
+### Tratamento de erros
+
+Foi implementado um tratamento personalizado das exceções do Django REST Framework, acrescentando informações padronizadas às respostas de erro sem remover os campos de validação existentes.
+
+Os principais códigos HTTP utilizados são:
+
+- 400: dados inválidos ou operação rejeitada.
+- 401: autenticação necessária.
+- 403: acesso não autorizado.
+- 404: recurso não encontrado.
+- 405: método HTTP não permitido.
+
+### Transações e concorrência
+
+As operações de escrita e seus respectivos registros de auditoria utilizam transações atômicas.
+
+O bloqueio de registros com `select_for_update()` auxilia no controle de operações concorrentes, reduzindo o risco de inconsistências durante atualizações e exclusões.
+
+### Organização da arquitetura
+
+Foram criados os módulos `permissions.py` e `exceptions.py`, responsáveis pelas regras de autorização e pelo tratamento de exceções, respectivamente.
+
+A separação de responsabilidades contribui para a manutenção, a legibilidade e a testabilidade da aplicação.
+
+### Testes de segurança
+
+Foram implementados testes automatizados para validar autenticação, autorização, proteção dos endpoints cadastrais, restrição de acesso às auditorias, tratamento de erros e proteção de registros inativos.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TesteSegurancaAPI -v 2
+```
+
+Para executar todos os testes da aplicação:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Limitações e melhorias futuras
+
+O projeto utiliza um ambiente de desenvolvimento local e um conjunto de dados fictícios.
+
+Uma implantação em produção exigiria infraestrutura adequada, HTTPS, políticas de expiração e revogação de tokens, monitoramento, backups, revisão de dependências e políticas de retenção de auditorias.
+
+As medidas implementadas representam uma base de segurança adequada ao contexto acadêmico, sem substituir uma avaliação completa de segurança para ambientes reais.

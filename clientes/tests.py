@@ -1,6 +1,6 @@
 from datetime import date
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase
 from django.urls import reverse
@@ -9,6 +9,17 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 from unittest.mock import patch
+
+
+def tornar_operador(usuario):
+
+    grupo, criado = Group.objects.get_or_create(
+        name="Operadores"
+    )
+
+    usuario.groups.add(grupo)
+
+    return usuario
 
 
 class TesteBancoDados(TestCase):
@@ -110,6 +121,10 @@ class TesteBancoDados(TestCase):
 class TesteAPIClientes(APITestCase):
 
     def setUp(self):
+        self.usuario = User.objects.create_user(
+            username="consulta_api",
+            password="SenhaTeste123!"
+        )
 
         self.vendedor = Vendedor.objects.create(
             nome="Vendedor de Teste"
@@ -145,6 +160,9 @@ class TesteAPIClientes(APITestCase):
         )
 
     def test_listar_clientes(self):
+        self.client.force_authenticate(
+            user=self.usuario
+        )
 
         url = reverse("cliente-list")
 
@@ -166,6 +184,9 @@ class TesteAPIClientes(APITestCase):
         )
 
     def test_consultar_cliente(self):
+        self.client.force_authenticate(
+            user=self.usuario
+        )
 
         url = reverse(
             "cliente-detail",
@@ -185,6 +206,9 @@ class TesteAPIClientes(APITestCase):
         )
 
     def test_cliente_inexistente(self):
+        self.client.force_authenticate(
+            user=self.usuario
+        )
 
         url = reverse(
             "cliente-detail",
@@ -216,6 +240,9 @@ class TesteAPIClientes(APITestCase):
 
 
     def test_nome_vendedor(self):
+        self.client.force_authenticate(
+            user=self.usuario
+        )
 
         url = reverse(
             "cliente-detail",
@@ -240,6 +267,8 @@ class TesteCRUDClientes(APITestCase):
                 password="senha_de_teste"
             )
         )
+
+        tornar_operador(self.usuario)
 
         self.vendedor = Vendedor.objects.create(
             nome="Vendedor Teste"
@@ -275,7 +304,9 @@ class TesteCRUDClientes(APITestCase):
             user=self.usuario
         )
 
-    def test_listagem_publica(self):
+    def test_listagem_autenticada(self):
+
+        self.autenticar()
 
         resposta = self.client.get(
             self.url_lista
@@ -432,6 +463,7 @@ class TesteCRUDClientes(APITestCase):
         )
 
     def test_cliente_inativo_nao_aparece(self):
+        self.autenticar()
 
         self.cliente.ativo = False
         self.cliente.save()
@@ -457,6 +489,8 @@ class TesteCRUDVendedores(APITestCase):
             )
         )
 
+        tornar_operador(self.usuario)
+
         self.vendedor = Vendedor.objects.create(
             nome="Vendedor Teste"
         )
@@ -477,6 +511,7 @@ class TesteCRUDVendedores(APITestCase):
         )
 
     def test_listar_vendedores(self):
+        self.autenticar()
 
         resposta = self.client.get(
             self.url_lista
@@ -493,6 +528,7 @@ class TesteCRUDVendedores(APITestCase):
         )
 
     def test_consultar_vendedor(self):
+        self.autenticar()
 
         resposta = self.client.get(
             self.url_detalhe
@@ -634,6 +670,7 @@ class TesteCRUDVendedores(APITestCase):
         )
 
     def test_listar_clientes_do_vendedor(self):
+        self.autenticar()
 
         Cliente.objects.create(
             id_cliente="TEST002",
@@ -906,6 +943,8 @@ class TesteAutenticacaoAPI(APITestCase):
             password="SenhaTeste123!"
         )
 
+        tornar_operador(self.usuario)
+
         self.token = Token.objects.create(
             user=self.usuario
         )
@@ -918,7 +957,7 @@ class TesteAutenticacaoAPI(APITestCase):
             "clientes-por-bairro"
         )
 
-    def test_consulta_publica_sem_token(self):
+    def test_consulta_cadastral_sem_token(self):
 
         resposta = self.client.get(
             self.url_vendedores
@@ -926,7 +965,7 @@ class TesteAutenticacaoAPI(APITestCase):
 
         self.assertEqual(
             resposta.status_code,
-            status.HTTP_200_OK
+            status.HTTP_401_UNAUTHORIZED
         )
 
     def test_cadastro_sem_token(self):
@@ -1211,6 +1250,8 @@ class TesteAuditoriaAPI(APITestCase):
             username="usuario_auditoria",
             password="SenhaTeste123!"
         )
+
+        tornar_operador(self.usuario)
 
         self.admin = User.objects.create_user(
             username="admin_auditoria",
@@ -1731,6 +1772,15 @@ class TestePaginacaoFiltrosAPI(APITestCase):
             "auditoria-list"
         )
 
+        self.usuario = User.objects.create_user(
+            username="consulta_filtros",
+            password="SenhaTeste123!"
+        )
+
+        self.client.force_authenticate(
+            user=self.usuario
+        )
+
     def test_paginacao_padrao_clientes(self):
 
         resposta = self.client.get(
@@ -2147,4 +2197,361 @@ class TestePaginacaoFiltrosAPI(APITestCase):
         self.assertEqual(
             len(nomes),
             10
+        )
+
+
+class TesteSegurancaAPI(APITestCase):
+
+    def setUp(self):
+
+        self.consulta = User.objects.create_user(
+            username="usuario_consulta",
+            password="SenhaTeste123!"
+        )
+
+        self.operador = User.objects.create_user(
+            username="usuario_operador",
+            password="SenhaTeste123!"
+        )
+
+        tornar_operador(self.operador)
+
+        self.admin = User.objects.create_user(
+            username="admin_seguranca",
+            password="SenhaTeste123!",
+            is_staff=True
+        )
+
+        self.vendedor = Vendedor.objects.create(
+            nome="Vendedor Segurança"
+        )
+
+        self.cliente = Cliente.objects.create(
+            id_cliente="SEG001",
+            razao_social="Empresa Segurança",
+            bairro="Taguatinga",
+            cidade="Brasília",
+            uf="DF",
+            vendedor=self.vendedor,
+            ativo=True
+        )
+
+        self.url_clientes = reverse(
+            "cliente-list"
+        )
+
+        self.url_cliente = reverse(
+            "cliente-detail",
+            args=[self.cliente.pk]
+        )
+
+        self.url_vendedores = reverse(
+            "vendedor-list"
+        )
+
+        self.url_vendedor = reverse(
+            "vendedor-detail",
+            args=[self.vendedor.pk]
+        )
+
+        self.url_auditorias = reverse(
+            "auditoria-list"
+        )
+
+    def test_clientes_sem_autenticacao(self):
+
+        resposta = self.client.get(
+            self.url_clientes
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+    def test_vendedores_sem_autenticacao(self):
+
+        resposta = self.client.get(
+            self.url_vendedores
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+    def test_usuario_comum_pode_consultar(self):
+
+        self.client.force_authenticate(
+            user=self.consulta
+        )
+
+        resposta = self.client.get(
+            self.url_clientes
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_usuario_comum_nao_pode_cadastrar(self):
+
+        self.client.force_authenticate(
+            user=self.consulta
+        )
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {"nome": "Vendedor Bloqueado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+        self.assertFalse(
+            Vendedor.objects.filter(
+                nome="Vendedor Bloqueado"
+            ).exists()
+        )
+
+    def test_usuario_comum_nao_pode_atualizar(self):
+
+        self.client.force_authenticate(
+            user=self.consulta
+        )
+
+        resposta = self.client.patch(
+            self.url_vendedor,
+            {"nome": "Alteração Bloqueada"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+        self.vendedor.refresh_from_db()
+
+        self.assertEqual(
+            self.vendedor.nome,
+            "Vendedor Segurança"
+        )
+
+    def test_usuario_comum_nao_pode_excluir(self):
+
+        self.client.force_authenticate(
+            user=self.consulta
+        )
+
+        resposta = self.client.delete(
+            self.url_cliente
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+        self.cliente.refresh_from_db()
+
+        self.assertTrue(
+            self.cliente.ativo
+        )
+
+    def test_operador_pode_cadastrar(self):
+
+        self.client.force_authenticate(
+            user=self.operador
+        )
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {"nome": "Vendedor Autorizado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_201_CREATED,
+            resposta.data
+        )
+
+    def test_operador_pode_atualizar(self):
+
+        self.client.force_authenticate(
+            user=self.operador
+        )
+
+        resposta = self.client.patch(
+            self.url_vendedor,
+            {"nome": "Vendedor Atualizado"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK,
+            resposta.data
+        )
+
+    def test_operador_pode_inativar_cliente(self):
+
+        self.client.force_authenticate(
+            user=self.operador
+        )
+
+        resposta = self.client.delete(
+            self.url_cliente
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+
+        self.cliente.refresh_from_db()
+
+        self.assertFalse(
+            self.cliente.ativo
+        )
+
+    def test_operador_nao_acessa_auditorias(self):
+
+        self.client.force_authenticate(
+            user=self.operador
+        )
+
+        resposta = self.client.get(
+            self.url_auditorias
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    def test_admin_pode_acessar_auditorias(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        resposta = self.client.get(
+            self.url_auditorias
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_consultas_agrupadas_publicas(self):
+
+        rotas = [
+            "clientes-por-bairro",
+            "clientes-por-vendedor"
+        ]
+
+        for rota in rotas:
+
+            resposta = self.client.get(
+                reverse(rota)
+            )
+
+            self.assertEqual(
+                resposta.status_code,
+                status.HTTP_200_OK
+            )
+
+    def test_padronizacao_erro_autenticacao(self):
+
+        resposta = self.client.get(
+            self.url_clientes
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+        self.assertEqual(
+            resposta.data["status_code"],
+            401
+        )
+
+        self.assertIn(
+            "mensagem",
+            resposta.data
+        )
+
+        self.assertIn(
+            "detail",
+            resposta.data
+        )
+
+    def test_padronizacao_erro_validacao(self):
+
+        self.client.force_authenticate(
+            user=self.operador
+        )
+
+        resposta = self.client.post(
+            self.url_vendedores,
+            {"nome": "A"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertEqual(
+            resposta.data["status_code"],
+            400
+        )
+
+        self.assertIn(
+            "nome",
+            resposta.data
+        )
+
+    def test_cliente_inativo_nao_pode_ser_atualizado(self):
+
+        self.cliente.ativo = False
+
+        self.cliente.save(
+            update_fields=["ativo"]
+        )
+
+        self.client.force_authenticate(
+            user=self.operador
+        )
+
+        resposta = self.client.patch(
+            self.url_cliente,
+            {"razao_social": "Empresa Alterada"},
+            format="json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+        self.cliente.refresh_from_db()
+
+        self.assertEqual(
+            self.cliente.razao_social,
+            "Empresa Segurança"
+        )
+
+        self.assertEqual(
+            AuditoriaAPI.objects.count(),
+            0
         )
