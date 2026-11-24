@@ -662,3 +662,151 @@ python manage.py test clientes -v 2
 A implementação da auditoria contribui para a rastreabilidade, a integridade e a confiabilidade das informações gerenciadas pela API REST.
 
 Em um ambiente de produção, deverão ser considerados mecanismos adicionais de proteção do histórico, controle de acesso, retenção de dados e adequação à Lei Geral de Proteção de Dados Pessoais (LGPD).
+
+
+## Paginação, filtros, pesquisa e ordenação da API
+
+Nesta etapa do Projeto Primora, foram implementados recursos de paginação, filtragem, pesquisa textual e ordenação dinâmica, com o objetivo de melhorar a eficiência da API REST e facilitar a consulta às informações da Distribuidora Vetor.
+
+### Paginação
+
+A paginação foi implementada utilizando `PageNumberPagination`, do Django REST Framework.
+
+| Recurso                           | Registros por página |
+|-----------------------------------|----------------------|
+| Clientes                          | 10                   |
+| Vendedores                        | 10                   |
+| Clientes vinculados a um vendedor | 10                   |
+| Auditorias da API                 | 20                   |
+
+O parâmetro `page_size` permite personalizar a quantidade de registros por página, respeitando o limite máximo de 100 registros por requisição.
+
+Exemplos:
+
+`GET /api/clientes/?page=2`
+
+`GET /api/clientes/?page_size=5`
+
+As respostas paginadas apresentam os seguintes campos:
+
+- `count`: quantidade total de registros encontrados.
+- `next`: endereço da próxima página.
+- `previous`: endereço da página anterior.
+- `results`: registros da página atual.
+
+### Filtros de clientes
+
+Foi utilizada a biblioteca `django-filter` para implementar filtros personalizados.
+
+| Parâmetro     | Finalidade                             |
+|---------------|----------------------------------------|
+| bairro        | Filtrar pelo bairro normalizado        |
+| cidade        | Filtrar pela cidade                    |
+| uf            | Filtrar pela unidade federativa        |
+| vendedor_id   | Filtrar pelo identificador do vendedor |
+| vendedor_nome | Filtrar pelo nome do vendedor          |
+| cnpj          | Filtrar pelo CNPJ normalizado          |
+| data_inicio   | Definir a data inicial de cadastro     |
+| data_fim      | Definir a data final de cadastro       |
+
+Exemplos:
+
+`GET /api/clientes/?bairro=Taguatinga`
+
+`GET /api/clientes/?vendedor_id=1`
+
+`GET /api/clientes/?data_inicio=2024-01-01&data_fim=2024-12-31`
+
+### Pesquisa textual
+
+A pesquisa textual foi implementada utilizando `SearchFilter`.
+
+Os clientes podem ser pesquisados pela razão social, CNPJ, bairro e nome do vendedor responsável.
+
+Exemplo:
+
+`GET /api/clientes/?search=Silva`
+
+### Ordenação dinâmica
+
+A ordenação foi implementada utilizando `OrderingFilter`.
+
+Exemplos:
+
+`GET /api/clientes/?ordering=razao_social`
+
+`GET /api/clientes/?ordering=-razao_social`
+
+`GET /api/vendedores/?ordering=-total_clientes_ativos,id`
+
+O sinal negativo indica ordenação decrescente.
+
+### Combinação de parâmetros
+
+Os recursos de paginação, filtragem, pesquisa e ordenação podem ser utilizados simultaneamente.
+
+Exemplo:
+
+`GET /api/clientes/?bairro=Taguatinga&ordering=razao_social&page_size=5`
+
+### Consultas de auditoria
+
+As consultas de auditoria também possuem paginação, pesquisa textual e ordenação.
+
+Os filtros de entidade, operação e identificador foram preservados.
+
+O acesso permanece restrito a usuários autenticados com `is_staff=True`.
+
+### Otimização de consultas
+
+Foi utilizado `select_related()` para recuperar os dados dos clientes e vendedores relacionados, reduzindo a ocorrência do problema de consultas N+1.
+
+Também foram preservadas as consultas com `annotate()` e `Count()` para calcular a quantidade de clientes ativos vinculados aos vendedores, evitando o carregamento desnecessário dos registros relacionados.
+
+### Consultas agrupadas
+
+Os endpoints de consultas agrupadas por bairro e vendedor mantêm sua estrutura original de resposta, permitindo consultar os totais consolidados sem paginação.
+
+### Testes automatizados
+
+Foram acrescentados testes para validar:
+
+- Paginação padrão e personalizada.
+- Limite máximo de registros por página.
+- Tratamento de páginas inexistentes.
+- Filtros individuais e combinados.
+- Pesquisa textual.
+- Ordenação dinâmica.
+- Filtros por período de cadastro.
+- Paginação de clientes, vendedores e auditorias.
+- Otimização de consultas ao banco de dados.
+
+Os testes anteriores de listagem foram adaptados à nova estrutura de respostas paginadas.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TestePaginacaoFiltrosAPI -v 2
+```
+
+Para executar todos os testes da aplicação:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Documentação
+
+Os parâmetros de consulta estão disponíveis na documentação interativa Swagger UI:
+
+http://127.0.0.1:8000/api/docs/
+
+Para atualizar o esquema OpenAPI:
+
+```bash
+python manage.py spectacular --file schema.yaml --validate
+```
+
+### Considerações
+
+A implementação desses recursos contribui para a escalabilidade, a organização e a eficiência da API REST, preparando o sistema para trabalhar com volumes maiores de dados e facilitando sua integração com aplicações frontend.

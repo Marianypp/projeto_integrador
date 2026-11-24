@@ -29,13 +29,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Bibliotecas externas
+    
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
-
-    # Aplicações do projeto
+    'django_filters',
+    
     'clientes',
 ]
 

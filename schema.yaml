@@ -32,6 +32,30 @@ paths:
           - CRIACAO
           - EXCLUSAO
           - INATIVACAO
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
       - Auditoria
       security:
@@ -42,9 +66,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AuditoriaAPI'
+                $ref: '#/components/schemas/PaginatedAuditoriaAPIList'
           description: ''
   /api/auditorias/{id}/:
     get:
@@ -75,6 +97,65 @@ paths:
       operationId: clientes_list
       description: Retorna os clientes ativos cadastrados na Distribuidora Vetor.
       summary: Listar clientes ativos
+      parameters:
+      - in: query
+        name: bairro
+        schema:
+          type: string
+      - in: query
+        name: cidade
+        schema:
+          type: string
+      - in: query
+        name: cnpj
+        schema:
+          type: string
+      - in: query
+        name: data_fim
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: data_inicio
+        schema:
+          type: string
+          format: date
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: uf
+        schema:
+          type: string
+      - in: query
+        name: vendedor_id
+        schema:
+          type: number
+      - in: query
+        name: vendedor_nome
+        schema:
+          type: string
       tags:
       - Clientes
       security:
@@ -86,9 +167,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Cliente'
+                $ref: '#/components/schemas/PaginatedClienteList'
           description: ''
     post:
       operationId: clientes_create
@@ -344,6 +423,35 @@ paths:
       operationId: vendedores_list
       description: Retorna os vendedores cadastrados e a quantidade de clientes ativos.
       summary: Listar vendedores
+      parameters:
+      - in: query
+        name: nome
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
       - Vendedores
       security:
@@ -355,9 +463,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Vendedor'
+                $ref: '#/components/schemas/PaginatedVendedorList'
           description: ''
     post:
       operationId: vendedores_create
@@ -504,7 +610,7 @@ paths:
   /api/vendedores/{id}/clientes/:
     get:
       operationId: vendedores_clientes_list
-      description: Retorna os clientes ativos vinculados ao vendedor informado.
+      description: Retorna uma lista paginada dos clientes ativos vinculados ao vendedor.
       summary: Listar clientes de um vendedor
       parameters:
       - in: path
@@ -513,6 +619,18 @@ paths:
           type: integer
         description: A unique integer value identifying this vendedor.
         required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
       - Vendedores
       security:
@@ -524,9 +642,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Cliente'
+                $ref: '#/components/schemas/PaginatedClienteList'
           description: ''
 components:
   schemas:
@@ -758,6 +874,75 @@ components:
         * `ATUALIZACAO` - Atualização
         * `EXCLUSAO` - Exclusão
         * `INATIVACAO` - Inativação
+    PaginatedAuditoriaAPIList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditoriaAPI'
+    PaginatedClienteList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cliente'
+    PaginatedVendedorList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendedor'
     PatchedClienteEscrita:
       type: object
       properties:

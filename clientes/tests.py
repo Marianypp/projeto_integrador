@@ -1,3 +1,4 @@
+from datetime import date
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db.models.deletion import ProtectedError
@@ -155,12 +156,12 @@ class TesteAPIClientes(APITestCase):
         )
 
         self.assertEqual(
-            len(resposta.data),
+            len(resposta.data["results"]),
             1
         )
 
         self.assertEqual(
-            resposta.data[0]["id_cliente"],
+            resposta.data["results"][0]["id_cliente"],
             "TEST001"
         )
 
@@ -286,7 +287,7 @@ class TesteCRUDClientes(APITestCase):
         )
 
         self.assertEqual(
-            len(resposta.data),
+            len(resposta.data["results"]),
             1
         )
 
@@ -487,7 +488,7 @@ class TesteCRUDVendedores(APITestCase):
         )
 
         self.assertEqual(
-            len(resposta.data),
+            len(resposta.data["results"]),
             1
         )
 
@@ -660,12 +661,12 @@ class TesteCRUDVendedores(APITestCase):
         )
 
         self.assertEqual(
-            len(resposta.data),
+            len(resposta.data["results"]),
             1
         )
 
         self.assertEqual(
-            resposta.data[0]["id_cliente"],
+            resposta.data["results"][0]["id_cliente"],
             "TEST002"
         )
 
@@ -1658,4 +1659,492 @@ class TesteAuditoriaAPI(APITestCase):
         self.assertEqual(
             AuditoriaAPI.objects.count(),
             0
+        )
+
+
+class TestePaginacaoFiltrosAPI(APITestCase):
+
+    def setUp(self):
+
+        self.ana = Vendedor.objects.create(
+            nome="Ana"
+        )
+
+        self.carlos = Vendedor.objects.create(
+            nome="Carlos"
+        )
+
+        self.admin = User.objects.create_user(
+            username="admin_filtros",
+            password="SenhaTeste123!",
+            is_staff=True
+        )
+
+        for numero in range(1, 26):
+
+            bairro = (
+                "Taguatinga"
+                if numero <= 15
+                else "Águas Claras"
+            )
+
+            vendedor = (
+                self.ana
+                if numero <= 15
+                else self.carlos
+            )
+
+            Cliente.objects.create(
+                id_cliente=f"PG{numero:03d}",
+                razao_social=(
+                    f"Empresa {numero:03d}"
+                ),
+                bairro=bairro,
+                cidade="Brasília",
+                uf="DF",
+                vendedor=vendedor,
+                data_cadastro=date(
+                    2024, 1, numero
+                ),
+                ativo=True
+            )
+
+        Cliente.objects.create(
+            id_cliente="PG999",
+            razao_social="Empresa Inativa",
+            bairro="Taguatinga",
+            cidade="Brasília",
+            uf="DF",
+            vendedor=self.ana,
+            ativo=False
+        )
+
+        self.url_clientes = reverse(
+            "cliente-list"
+        )
+
+        self.url_vendedores = reverse(
+            "vendedor-list"
+        )
+
+        self.url_auditorias = reverse(
+            "auditoria-list"
+        )
+
+    def test_paginacao_padrao_clientes(self):
+
+        resposta = self.client.get(
+            self.url_clientes
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            25
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            10
+        )
+
+        self.assertIsNotNone(
+            resposta.data["next"]
+        )
+
+        self.assertIsNone(
+            resposta.data["previous"]
+        )
+
+    def test_segunda_pagina_clientes(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {"page": 2}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["results"][0][
+                "id_cliente"
+            ],
+            "PG011"
+        )
+
+        self.assertIsNotNone(
+            resposta.data["previous"]
+        )
+
+    def test_tamanho_personalizado_pagina(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {"page_size": 5}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            5
+        )
+
+    def test_pagina_inexistente(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {"page": 999}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+    def test_filtro_por_bairro(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {
+                "bairro": "taguatinga",
+                "page_size": 100
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            15
+        )
+
+        for cliente in resposta.data["results"]:
+
+            self.assertEqual(
+                cliente["bairro"],
+                "Taguatinga"
+            )
+
+    def test_filtro_por_vendedor(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {
+                "vendedor_id": self.carlos.pk
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            10
+        )
+
+    def test_pesquisa_por_razao_social(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {"search": "Empresa 005"}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            1
+        )
+
+        self.assertEqual(
+            resposta.data["results"][0][
+                "id_cliente"
+            ],
+            "PG005"
+        )
+
+    def test_ordenacao_decrescente(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {
+                "ordering": "-razao_social"
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["results"][0][
+                "id_cliente"
+            ],
+            "PG025"
+        )
+
+    def test_filtros_combinados(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {
+                "bairro": "Taguatinga",
+                "vendedor_id": self.ana.pk,
+                "ordering": "-razao_social",
+                "page_size": 5
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            15
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            5
+        )
+
+        self.assertEqual(
+            resposta.data["results"][0][
+                "id_cliente"
+            ],
+            "PG015"
+        )
+
+    def test_filtro_periodo_cadastro(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {
+                "data_inicio": "2024-01-05",
+                "data_fim": "2024-01-10"
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            6
+        )
+
+    def test_data_invalida(self):
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {
+                "data_inicio": "data-invalida"
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_paginacao_vendedores(self):
+
+        resposta = self.client.get(
+            self.url_vendedores,
+            {"page_size": 1}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            2
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            1
+        )
+
+    def test_ordenacao_vendedores_por_clientes(self):
+
+        resposta = self.client.get(
+            self.url_vendedores,
+            {
+                "ordering": (
+                    "-total_clientes_ativos,id"
+                )
+            }
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["results"][0]["nome"],
+            "Ana"
+        )
+
+        self.assertEqual(
+            resposta.data["results"][0][
+                "quantidade_clientes"
+            ],
+            15
+        )
+
+    def test_paginacao_clientes_do_vendedor(self):
+
+        url = reverse(
+            "vendedor-clientes",
+            args=[self.ana.pk]
+        )
+
+        resposta = self.client.get(
+            url,
+            {"page_size": 5}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            15
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            5
+        )
+
+    def test_paginacao_auditorias(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        for numero in range(25):
+
+            AuditoriaAPI.objects.create(
+                entidade="Cliente",
+                identificador_registro=(
+                    f"AUD{numero:03d}"
+                ),
+                operacao=(
+                    AuditoriaAPI.Operacao.CRIACAO
+                ),
+                usuario=self.admin,
+                usuario_nome=self.admin.username,
+                metodo_http="POST"
+            )
+
+        resposta = self.client.get(
+            self.url_auditorias
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            25
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            20
+        )
+
+        self.assertIsNotNone(
+            resposta.data["next"]
+        )
+
+    def test_limite_maximo_paginacao(self):
+
+        Cliente.objects.bulk_create([
+            Cliente(
+                id_cliente=f"EXTRA{numero:03d}",
+                razao_social=(
+                    f"Empresa Extra {numero:03d}"
+                ),
+                cidade="Brasília",
+                uf="DF",
+                vendedor=self.ana,
+                ativo=True
+            )
+            for numero in range(100)
+        ])
+
+        resposta = self.client.get(
+            self.url_clientes,
+            {"page_size": 500}
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            resposta.data["count"],
+            125
+        )
+
+        self.assertEqual(
+            len(resposta.data["results"]),
+            100
+        )
+
+    def test_otimizacao_consulta_clientes(self):
+
+        with self.assertNumQueries(1):
+
+            clientes = list(
+                Cliente.objects
+                .filter(ativo=True)
+                .select_related("vendedor")
+                .order_by("id_cliente")[:10]
+            )
+
+            nomes = [
+                cliente.vendedor.nome
+                for cliente in clientes
+            ]
+
+        self.assertEqual(
+            len(nomes),
+            10
         )

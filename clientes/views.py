@@ -2,6 +2,20 @@ from django.db import transaction
 from django.db.models import Count, Q
 from django.db.models.deletion import ProtectedError
 
+from .filters import (
+    ClienteFilter,
+    VendedorFilter
+)
+
+from django_filters.rest_framework import (
+    DjangoFilterBackend
+)
+
+from rest_framework.filters import (
+    SearchFilter,
+    OrderingFilter
+)
+
 from drf_spectacular.types import OpenApiTypes
 
 from drf_spectacular.utils import (
@@ -13,6 +27,11 @@ from drf_spectacular.utils import (
 )
 
 from .models import Cliente, Vendedor, AuditoriaAPI
+
+from .pagination import (
+    PaginacaoPadrao,
+    PaginacaoAuditoria
+)
 
 from rest_framework import (
     viewsets,
@@ -162,6 +181,38 @@ class ClienteViewSet(viewsets.ModelViewSet):
     ]
 
     lookup_field = "id_cliente"
+
+    pagination_class = PaginacaoPadrao
+
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter
+    ]
+
+    filterset_class = ClienteFilter
+
+    search_fields = [
+        "razao_social",
+        "cnpj",
+        "bairro",
+        "vendedor__nome"
+    ]
+
+    ordering_fields = [
+        "id_cliente",
+        "razao_social",
+        "bairro",
+        "cidade",
+        "data_cadastro",
+        "vendedor__nome"
+    ]
+
+    ordering = [
+        "id_cliente"
+    ]
+
 
     def get_queryset(self):
 
@@ -373,6 +424,33 @@ class VendedorViewSet(viewsets.ModelViewSet):
 
     serializer_class = VendedorSerializer
 
+    pagination_class = PaginacaoPadrao
+
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter
+    ]
+
+    filterset_class = VendedorFilter
+
+    search_fields = [
+        "nome"
+    ]
+
+    ordering_fields = [
+        "id",
+        "nome",
+        "total_clientes_ativos"
+    ]
+
+    ordering = [
+        "nome",
+        "id"
+    ]
+
+
     
     def get_queryset(self):
 
@@ -433,14 +511,15 @@ class VendedorViewSet(viewsets.ModelViewSet):
 
 
     
+    
     @extend_schema(
         tags=["Vendedores"],
 
         summary="Listar clientes de um vendedor",
 
         description=(
-            "Retorna os clientes ativos vinculados "
-            "ao vendedor informado."
+            "Retorna uma lista paginada dos "
+            "clientes ativos vinculados ao vendedor."
         ),
 
         responses={
@@ -450,7 +529,8 @@ class VendedorViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=["get"],
-        url_path="clientes"
+        url_path="clientes",
+        filter_backends=[]
     )
     def clientes(self, request, pk=None):
 
@@ -463,12 +543,30 @@ class VendedorViewSet(viewsets.ModelViewSet):
             .order_by("id_cliente")
         )
 
+        pagina = self.paginate_queryset(
+            clientes
+        )
+
+        if pagina is not None:
+
+            serializer = ClienteSerializer(
+                pagina,
+                many=True
+            )
+
+            return self.get_paginated_response(
+                serializer.data
+            )
+
         serializer = ClienteSerializer(
             clientes,
             many=True
         )
 
-        return Response(serializer.data)
+        return Response(
+            serializer.data
+        )
+
 
 
     def perform_create(self, serializer):
@@ -832,6 +930,36 @@ class AuditoriaAPIViewSet(
     permission_classes = [
         IsAdminUser
     ]
+
+    pagination_class = PaginacaoAuditoria
+
+
+    filter_backends = [
+        SearchFilter,
+        OrderingFilter
+    ]
+
+    search_fields = [
+        "entidade",
+        "identificador_registro",
+        "usuario_nome",
+        "operacao"
+    ]
+
+    ordering_fields = [
+        "id",
+        "data_registro",
+        "entidade",
+        "operacao",
+        "usuario_nome"
+    ]
+
+    ordering = [
+        "-data_registro",
+        "-id"
+    ]
+
+
 
     def get_queryset(self):
 
