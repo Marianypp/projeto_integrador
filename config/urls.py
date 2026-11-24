@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from clientes.authentication import TokenObtainView
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -40,6 +41,7 @@ urlpatterns = [
         ),
         name="redoc"
     ),
+    path("api/auth/token/", TokenObtainView.as_view(), name="api-token"),
 ]
 
 

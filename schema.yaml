@@ -6,6 +6,39 @@ info:
     de clientes e vendedores, consultas agrupadas por bairro normalizado e vendedor
     responsável, utilizando dados tratados por um processo de ETL.
 paths:
+  /api/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: 'Recebe usuário e senha de uma conta cadastrada no Django. Com
+        credenciais válidas, retorna um token que deve ser enviado nas operações protegidas
+        pelo cabeçalho Authorization: Token <token>.'
+      summary: Obter token de acesso
+      tags:
+      - Autenticação
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: ''
+        '400':
+          description: Usuário ou senha inválidos.
   /api/clientes/:
     get:
       operationId: clientes_list
@@ -466,6 +499,22 @@ paths:
           description: ''
 components:
   schemas:
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+      - password
+      - token
+      - username
     BairroAgrupado:
       type: object
       properties:
@@ -703,6 +752,14 @@ components:
       - mensagem
       - status
       - versao
+    TokenResponse:
+      type: object
+      description: Formato da resposta retornada quando o login é válido.
+      properties:
+        token:
+          type: string
+      required:
+      - token
     Vendedor:
       type: object
       properties:
