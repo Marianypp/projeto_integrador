@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     # Bibliotecas externas
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_spectacular',
 
     # Aplicações do projeto
     'clientes',
@@ -132,7 +133,6 @@ MAILERS = {
 }
 
 
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
@@ -142,5 +142,50 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+
+    "DEFAULT_SCHEMA_CLASS": (
+        "drf_spectacular.openapi.AutoSchema"
+    ),
 }
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "API Distribuidora Vetor",
+
+    "DESCRIPTION": (
+        "API REST desenvolvida para o Projeto Primora. "
+        "Permite o gerenciamento de clientes e vendedores, "
+        "consultas agrupadas por bairro normalizado e "
+        "vendedor responsável, utilizando dados tratados "
+        "por um processo de ETL."
+    ),
+
+    "VERSION": "1.0.0",
+
+    "SERVE_INCLUDE_SCHEMA": False,
+
+    "SERVE_PERMISSIONS": [
+        "rest_framework.permissions.AllowAny",
+    ],
+
+    "TAGS": [
+        {
+            "name": "Status",
+            "description": "Verificação do funcionamento da API."
+        },
+        {
+            "name": "Clientes",
+            "description": "Gerenciamento dos clientes."
+        },
+        {
+            "name": "Vendedores",
+            "description": "Gerenciamento dos vendedores."
+        },
+        {
+            "name": "Consultas",
+            "description": "Consultas agrupadas e gerenciais."
+        },
+    ],
+}
+
 

@@ -29,10 +29,38 @@ from .models import Cliente, Vendedor
 from .serializers import (
     ClienteSerializer,
     ClienteEscritaSerializer,
-    VendedorSerializer
+    VendedorSerializer,
+    StatusAPISerializer,
+    ConsultaBairroSerializer,
+    ConsultaVendedorSerializer,
+    ErroConsultaSerializer,
+)
+
+from drf_spectacular.types import OpenApiTypes
+
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiParameter,
+    OpenApiExample,
+    OpenApiResponse,
 )
 
 
+@extend_schema(
+    tags=["Status"],
+
+    summary="Verificar status da API",
+
+    description=(
+        "Retorna informações sobre o funcionamento "
+        "e a versão da API Distribuidora Vetor."
+    ),
+
+    responses={
+        200: StatusAPISerializer
+    }
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def status_api(request):
@@ -44,6 +72,85 @@ def status_api(request):
     })
 
 
+
+@extend_schema_view(
+
+    list=extend_schema(
+        tags=["Clientes"],
+        summary="Listar clientes ativos",
+        description=(
+            "Retorna os clientes ativos cadastrados "
+            "na Distribuidora Vetor."
+        ),
+        responses={
+            200: ClienteSerializer(many=True)
+        }
+    ),
+
+    retrieve=extend_schema(
+        tags=["Clientes"],
+        summary="Consultar cliente",
+        description=(
+            "Consulta um cliente ativo pelo "
+            "identificador."
+        ),
+        responses={
+            200: ClienteSerializer
+        }
+    ),
+
+    create=extend_schema(
+        tags=["Clientes"],
+        summary="Cadastrar cliente",
+        description=(
+            "Cadastra um novo cliente. "
+            "Exige autenticação."
+        ),
+        request=ClienteEscritaSerializer,
+        responses={
+            201: ClienteSerializer
+        }
+    ),
+
+    update=extend_schema(
+        tags=["Clientes"],
+        summary="Atualizar cliente",
+        description=(
+            "Atualiza os dados de um cliente. "
+            "Exige autenticação."
+        ),
+        request=ClienteEscritaSerializer,
+        responses={
+            200: ClienteSerializer
+        }
+    ),
+
+    partial_update=extend_schema(
+        tags=["Clientes"],
+        summary="Atualizar cliente parcialmente",
+        description=(
+            "Atualiza somente os campos informados. "
+            "Exige autenticação."
+        ),
+        request=ClienteEscritaSerializer,
+        responses={
+            200: ClienteSerializer
+        }
+    ),
+
+    destroy=extend_schema(
+        tags=["Clientes"],
+        summary="Inativar cliente",
+        description=(
+            "Realiza a exclusão lógica do cliente, "
+            "alterando o campo ativo para False. "
+            "Exige autenticação."
+        ),
+        responses={
+            204: None
+        }
+    ),
+)
 class ClienteViewSet(viewsets.ModelViewSet):
 
     permission_classes = [
@@ -139,6 +246,57 @@ class ClienteViewSet(viewsets.ModelViewSet):
         )
 
 
+@extend_schema_view(
+
+    list=extend_schema(
+        tags=["Vendedores"],
+        summary="Listar vendedores",
+        description=(
+            "Retorna os vendedores cadastrados e "
+            "a quantidade de clientes ativos."
+        )
+    ),
+
+    retrieve=extend_schema(
+        tags=["Vendedores"],
+        summary="Consultar vendedor"
+    ),
+
+    create=extend_schema(
+        tags=["Vendedores"],
+        summary="Cadastrar vendedor",
+        description="Exige autenticação."
+    ),
+
+    update=extend_schema(
+        tags=["Vendedores"],
+        summary="Atualizar vendedor",
+        description="Exige autenticação."
+    ),
+
+    partial_update=extend_schema(
+        tags=["Vendedores"],
+        summary="Atualizar vendedor parcialmente",
+        description="Exige autenticação."
+    ),
+
+    destroy=extend_schema(
+        tags=["Vendedores"],
+        summary="Excluir vendedor",
+        description=(
+            "Exclui um vendedor sem clientes vinculados. "
+            "Exige autenticação."
+        ),
+        responses={
+            204: None,
+            400: OpenApiResponse(
+                description=(
+                    "O vendedor possui clientes vinculados."
+                )
+            )
+        }
+    ),
+)
 class VendedorViewSet(viewsets.ModelViewSet):
 
     permission_classes = [
@@ -178,6 +336,21 @@ class VendedorViewSet(viewsets.ModelViewSet):
             })
 
 
+    
+    @extend_schema(
+        tags=["Vendedores"],
+
+        summary="Listar clientes de um vendedor",
+
+        description=(
+            "Retorna os clientes ativos vinculados "
+            "ao vendedor informado."
+        ),
+
+        responses={
+            200: ClienteSerializer(many=True)
+        }
+    )
     @action(
         detail=True,
         methods=["get"],
@@ -202,6 +375,66 @@ class VendedorViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+
+
+@extend_schema(
+    tags=["Consultas"],
+
+    summary="Consultar clientes por bairro",
+
+    description=(
+        "Retorna a quantidade de clientes ativos "
+        "agrupados pelo bairro normalizado. "
+        "Clientes sem bairro informado não são "
+        "incluídos na contagem."
+    ),
+
+    parameters=[
+        OpenApiParameter(
+            name="bairro",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description=(
+                "Nome do bairro utilizado como filtro."
+            ),
+            examples=[
+                OpenApiExample(
+                    "Águas Claras",
+                    value="Águas Claras"
+                )
+            ]
+        )
+    ],
+
+    responses={
+        200: ConsultaBairroSerializer
+    },
+
+    examples=[
+        OpenApiExample(
+            "Exemplo de agrupamento por bairro",
+
+            value={
+                "total_bairros": 2,
+                "total_clientes": 15,
+                "resultados": [
+                    {
+                        "bairro": "Águas Claras",
+                        "total_clientes": 10
+                    },
+                    {
+                        "bairro": "Taguatinga",
+                        "total_clientes": 5
+                    }
+                ]
+            },
+
+            response_only=True,
+            status_codes=["200"]
+        )
+    ]
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def clientes_por_bairro(request):
@@ -235,15 +468,79 @@ def clientes_por_bairro(request):
 
     return Response({
         "total_bairros": len(resultado),
+
         "total_clientes": sum(
             item["total_clientes"]
             for item in resultado
         ),
+
         "resultados": resultado
     })
 
 
 
+
+@extend_schema(
+    tags=["Consultas"],
+
+    summary="Consultar clientes por vendedor",
+
+    description=(
+        "Retorna a quantidade de clientes ativos "
+        "associados a cada vendedor. "
+        "Vendedores sem clientes ativos também "
+        "são apresentados."
+    ),
+
+    parameters=[
+        OpenApiParameter(
+            name="vendedor_id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description=(
+                "Identificador positivo do vendedor."
+            ),
+            examples=[
+                OpenApiExample(
+                    "Vendedor 1",
+                    value=1
+                )
+            ]
+        )
+    ],
+
+    responses={
+        200: ConsultaVendedorSerializer,
+        400: ErroConsultaSerializer
+    },
+
+    examples=[
+        OpenApiExample(
+            "Exemplo de agrupamento por vendedor",
+
+            value={
+                "total_vendedores": 2,
+                "total_clientes": 10,
+                "resultados": [
+                    {
+                        "id": 1,
+                        "nome": "Ana",
+                        "total_clientes": 6
+                    },
+                    {
+                        "id": 2,
+                        "nome": "Carlos",
+                        "total_clientes": 4
+                    }
+                ]
+            },
+
+            response_only=True,
+            status_codes=["200"]
+        )
+    ]
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def clientes_por_vendedor(request):
@@ -256,10 +553,13 @@ def clientes_por_vendedor(request):
 
     if vendedor_id is not None:
 
-        if (
-            not vendedor_id.isdecimal()
-            or int(vendedor_id) < 1
-        ):
+        try:
+            identificador = int(vendedor_id)
+
+            if identificador < 1:
+                raise ValueError
+
+        except ValueError:
             return Response(
                 {
                     "erro": (
@@ -271,7 +571,7 @@ def clientes_por_vendedor(request):
             )
 
         vendedores = vendedores.filter(
-            pk=int(vendedor_id)
+            pk=identificador
         )
 
     agrupamento = (
@@ -294,10 +594,13 @@ def clientes_por_vendedor(request):
 
     return Response({
         "total_vendedores": len(resultado),
+
         "total_clientes": sum(
             item["total_clientes"]
             for item in resultado
         ),
+
         "resultados": resultado
     })
+
 

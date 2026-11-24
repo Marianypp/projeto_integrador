@@ -453,3 +453,94 @@ A autenticação por token foi implementada como parte da proteção inicial da 
 Em um ambiente de produção, recomenda-se utilizar HTTPS, proteger os tokens e aplicar controles de acesso mais específicos conforme as funções dos usuários.
 
 Também será necessário revisar a exposição pública de informações pessoais de clientes e implementar mecanismos de auditoria das alterações realizadas.
+
+## Documentação da API — Swagger e ReDoc
+
+A API REST da Distribuidora Vetor possui documentação automática gerada pela biblioteca `drf-spectacular`, utilizando a especificação OpenAPI.
+
+A documentação permite visualizar os endpoints disponíveis, os métodos HTTP, os parâmetros de consulta, os formatos das requisições e respostas e os mecanismos de autenticação.
+
+### Acesso à documentação
+
+Após iniciar o servidor Django, as interfaces podem ser acessadas pelos seguintes endereços:
+
+| Interface | Endereço |
+|---|---|
+| Swagger UI | http://127.0.0.1:8000/api/docs/ |
+| ReDoc | http://127.0.0.1:8000/api/redoc/ |
+| Esquema OpenAPI | http://127.0.0.1:8000/api/schema/ |
+
+### Organização dos endpoints
+
+A documentação foi organizada em quatro categorias:
+
+- **Status:** verificação do funcionamento da API.
+- **Clientes:** gerenciamento dos clientes cadastrados.
+- **Vendedores:** gerenciamento dos vendedores responsáveis.
+- **Consultas:** agrupamento de clientes por bairro normalizado e vendedor responsável.
+
+### Documentação interativa
+
+O Swagger UI permite executar requisições diretamente pelo navegador, facilitando os testes e a integração com outras aplicações.
+
+As operações de escrita exigem autenticação. Para realizar uma requisição autenticada pelo Swagger, deve-se utilizar o botão `Authorize` e informar a credencial no seguinte formato:
+
+```http
+Token SEU_TOKEN_AQUI
+```
+
+Tokens reais não devem ser publicados no repositório.
+
+### Documentação personalizada
+
+Foram utilizados os decoradores `extend_schema` e `extend_schema_view` para descrever os endpoints, parâmetros, regras de negócio e formatos de resposta.
+
+Também foram criados serializers específicos para representar os resultados das consultas agrupadas.
+
+### Geração do esquema OpenAPI
+
+Para gerar e validar o arquivo de especificação da API:
+
+```bash
+python manage.py spectacular --file schema.yaml --validate
+```
+
+O arquivo `schema.yaml` contém a descrição estruturada dos endpoints e pode ser utilizado por ferramentas compatíveis com OpenAPI.
+
+### Testes automatizados
+
+Foram implementados testes para verificar:
+
+- Disponibilidade do esquema OpenAPI.
+- Disponibilidade do Swagger UI.
+- Disponibilidade do ReDoc.
+- Presença dos principais endpoints na documentação.
+- Documentação dos parâmetros de consulta.
+- Presença do mecanismo de autenticação por token.
+
+Para executar os testes específicos:
+
+```bash
+python manage.py test clientes.tests.TesteDocumentacaoAPI -v 2
+```
+
+Para executar todos os testes da aplicação:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Tecnologias utilizadas
+
+- Python
+- Django
+- Django REST Framework
+- PostgreSQL
+- drf-spectacular
+- OpenAPI
+- Swagger UI
+- ReDoc
+
+### Considerações
+
+A documentação automática contribui para a manutenção, organização e integração da API REST, permitindo que desenvolvedores e avaliadores compreendam e testem as funcionalidades implementadas no Projeto Primora.

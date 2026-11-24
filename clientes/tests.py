@@ -1058,3 +1058,148 @@ class TesteAutenticacaoAPI(APITestCase):
                 pk=vendedor.pk
             ).exists()
         )
+
+
+class TesteDocumentacaoAPI(APITestCase):
+
+    def test_schema_disponivel(self):
+
+        resposta = self.client.get(
+            reverse("schema")
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_swagger_disponivel(self):
+
+        resposta = self.client.get(
+            reverse("swagger-ui")
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_redoc_disponivel(self):
+
+        resposta = self.client.get(
+            reverse("redoc")
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_endpoints_presentes_no_schema(self):
+
+        resposta = self.client.get(
+            reverse("schema"),
+            HTTP_ACCEPT="application/json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        esquema = resposta.json()
+
+        rotas = esquema["paths"]
+
+        self.assertIn(
+            "/api/clientes/",
+            rotas
+        )
+
+        self.assertIn(
+            "/api/vendedores/",
+            rotas
+        )
+
+        self.assertIn(
+            "/api/consultas/clientes-por-bairro/",
+            rotas
+        )
+
+        self.assertIn(
+            "/api/consultas/clientes-por-vendedor/",
+            rotas
+        )
+
+    def test_parametro_bairro_documentado(self):
+
+        resposta = self.client.get(
+            reverse("schema"),
+            HTTP_ACCEPT="application/json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        esquema = resposta.json()
+
+        parametros = esquema["paths"][
+            "/api/consultas/clientes-por-bairro/"
+        ]["get"]["parameters"]
+
+        nomes = [
+            parametro["name"]
+            for parametro in parametros
+        ]
+
+        self.assertIn("bairro", nomes)
+
+    def test_parametro_vendedor_documentado(self):
+
+        resposta = self.client.get(
+            reverse("schema"),
+            HTTP_ACCEPT="application/json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        esquema = resposta.json()
+
+        parametros = esquema["paths"][
+            "/api/consultas/clientes-por-vendedor/"
+        ]["get"]["parameters"]
+
+        nomes = [
+            parametro["name"]
+            for parametro in parametros
+        ]
+
+        self.assertIn("vendedor_id", nomes)
+
+    def test_autenticacao_documentada(self):
+
+        resposta = self.client.get(
+            reverse("schema"),
+            HTTP_ACCEPT="application/json"
+        )
+
+        self.assertEqual(
+            resposta.status_code,
+            status.HTTP_200_OK
+        )
+
+        esquema = resposta.json()
+
+        mecanismos = esquema["components"][
+            "securitySchemes"
+        ]
+
+        self.assertIn(
+            "tokenAuth",
+            mecanismos
+        )

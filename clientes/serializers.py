@@ -230,3 +230,50 @@ class VendedorSerializer(serializers.ModelSerializer):
             )
 
         return valor
+
+
+class StatusAPISerializer(serializers.Serializer):
+
+    mensagem = serializers.CharField()
+    status = serializers.CharField()
+    versao = serializers.CharField()
+
+
+class BairroAgrupadoSerializer(serializers.Serializer):
+
+    bairro = serializers.CharField()
+    total_clientes = serializers.IntegerField()
+
+
+class ConsultaBairroSerializer(serializers.Serializer):
+
+    total_bairros = serializers.IntegerField()
+
+    total_clientes = serializers.IntegerField()
+
+    resultados = BairroAgrupadoSerializer(
+        many=True
+    )
+
+
+class VendedorAgrupadoSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    nome = serializers.CharField()
+    total_clientes = serializers.IntegerField()
+
+
+class ConsultaVendedorSerializer(serializers.Serializer):
+
+    total_vendedores = serializers.IntegerField()
+
+    total_clientes = serializers.IntegerField()
+
+    resultados = VendedorAgrupadoSerializer(
+        many=True
+    )
+
+
+class ErroConsultaSerializer(serializers.Serializer):
+
+    erro = serializers.CharField()

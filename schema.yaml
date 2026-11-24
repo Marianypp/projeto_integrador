@@ -1,0 +1,753 @@
+openapi: 3.0.3
+info:
+  title: API Distribuidora Vetor
+  version: 1.0.0
+  description: API REST desenvolvida para o Projeto Primora. Permite o gerenciamento
+    de clientes e vendedores, consultas agrupadas por bairro normalizado e vendedor
+    responsável, utilizando dados tratados por um processo de ETL.
+paths:
+  /api/clientes/:
+    get:
+      operationId: clientes_list
+      description: Retorna os clientes ativos cadastrados na Distribuidora Vetor.
+      summary: Listar clientes ativos
+      tags:
+      - Clientes
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+          description: ''
+    post:
+      operationId: clientes_create
+      description: Cadastra um novo cliente. Exige autenticação.
+      summary: Cadastrar cliente
+      tags:
+      - Clientes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteEscrita'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClienteEscrita'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClienteEscrita'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+          description: ''
+  /api/clientes/{id_cliente}/:
+    get:
+      operationId: clientes_retrieve
+      description: Consulta um cliente ativo pelo identificador.
+      summary: Consultar cliente
+      parameters:
+      - in: path
+        name: id_cliente
+        schema:
+          type: string
+        description: A unique value identifying this cliente.
+        required: true
+      tags:
+      - Clientes
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+          description: ''
+    put:
+      operationId: clientes_update
+      description: Atualiza os dados de um cliente. Exige autenticação.
+      summary: Atualizar cliente
+      parameters:
+      - in: path
+        name: id_cliente
+        schema:
+          type: string
+        description: A unique value identifying this cliente.
+        required: true
+      tags:
+      - Clientes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteEscrita'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClienteEscrita'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClienteEscrita'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+          description: ''
+    patch:
+      operationId: clientes_partial_update
+      description: Atualiza somente os campos informados. Exige autenticação.
+      summary: Atualizar cliente parcialmente
+      parameters:
+      - in: path
+        name: id_cliente
+        schema:
+          type: string
+        description: A unique value identifying this cliente.
+        required: true
+      tags:
+      - Clientes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedClienteEscrita'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedClienteEscrita'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedClienteEscrita'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+          description: ''
+    delete:
+      operationId: clientes_destroy
+      description: Realiza a exclusão lógica do cliente, alterando o campo ativo para
+        False. Exige autenticação.
+      summary: Inativar cliente
+      parameters:
+      - in: path
+        name: id_cliente
+        schema:
+          type: string
+        description: A unique value identifying this cliente.
+        required: true
+      tags:
+      - Clientes
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/consultas/clientes-por-bairro/:
+    get:
+      operationId: consultas_clientes_por_bairro_retrieve
+      description: Retorna a quantidade de clientes ativos agrupados pelo bairro normalizado.
+        Clientes sem bairro informado não são incluídos na contagem.
+      summary: Consultar clientes por bairro
+      parameters:
+      - in: query
+        name: bairro
+        schema:
+          type: string
+        description: Nome do bairro utilizado como filtro.
+        examples:
+          ÁguasClaras:
+            value: Águas Claras
+            summary: Águas Claras
+      tags:
+      - Consultas
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaBairro'
+              examples:
+                ExemploDeAgrupamentoPorBairro:
+                  value:
+                    total_bairros: 2
+                    total_clientes: 15
+                    resultados:
+                    - bairro: Águas Claras
+                      total_clientes: 10
+                    - bairro: Taguatinga
+                      total_clientes: 5
+                  summary: Exemplo de agrupamento por bairro
+          description: ''
+  /api/consultas/clientes-por-vendedor/:
+    get:
+      operationId: consultas_clientes_por_vendedor_retrieve
+      description: Retorna a quantidade de clientes ativos associados a cada vendedor.
+        Vendedores sem clientes ativos também são apresentados.
+      summary: Consultar clientes por vendedor
+      parameters:
+      - in: query
+        name: vendedor_id
+        schema:
+          type: integer
+        description: Identificador positivo do vendedor.
+        examples:
+          Vendedor1:
+            value: 1
+            summary: Vendedor 1
+      tags:
+      - Consultas
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaVendedor'
+              examples:
+                ExemploDeAgrupamentoPorVendedor:
+                  value:
+                    total_vendedores: 2
+                    total_clientes: 10
+                    resultados:
+                    - id: 1
+                      nome: Ana
+                      total_clientes: 6
+                    - id: 2
+                      nome: Carlos
+                      total_clientes: 4
+                  summary: Exemplo de agrupamento por vendedor
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroConsulta'
+          description: ''
+  /api/status/:
+    get:
+      operationId: status_retrieve
+      description: Retorna informações sobre o funcionamento e a versão da API Distribuidora
+        Vetor.
+      summary: Verificar status da API
+      tags:
+      - Status
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusAPI'
+          description: ''
+  /api/vendedores/:
+    get:
+      operationId: vendedores_list
+      description: Retorna os vendedores cadastrados e a quantidade de clientes ativos.
+      summary: Listar vendedores
+      tags:
+      - Vendedores
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendedor'
+          description: ''
+    post:
+      operationId: vendedores_create
+      description: Exige autenticação.
+      summary: Cadastrar vendedor
+      tags:
+      - Vendedores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendedor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendedor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendedor'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+          description: ''
+  /api/vendedores/{id}/:
+    get:
+      operationId: vendedores_retrieve
+      summary: Consultar vendedor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendedor.
+        required: true
+      tags:
+      - Vendedores
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+          description: ''
+    put:
+      operationId: vendedores_update
+      description: Exige autenticação.
+      summary: Atualizar vendedor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendedor.
+        required: true
+      tags:
+      - Vendedores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendedor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendedor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendedor'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+          description: ''
+    patch:
+      operationId: vendedores_partial_update
+      description: Exige autenticação.
+      summary: Atualizar vendedor parcialmente
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendedor.
+        required: true
+      tags:
+      - Vendedores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendedor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendedor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendedor'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+          description: ''
+    delete:
+      operationId: vendedores_destroy
+      description: Exclui um vendedor sem clientes vinculados. Exige autenticação.
+      summary: Excluir vendedor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendedor.
+        required: true
+      tags:
+      - Vendedores
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          description: O vendedor possui clientes vinculados.
+  /api/vendedores/{id}/clientes/:
+    get:
+      operationId: vendedores_clientes_list
+      description: Retorna os clientes ativos vinculados ao vendedor informado.
+      summary: Listar clientes de um vendedor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendedor.
+        required: true
+      tags:
+      - Vendedores
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+          description: ''
+components:
+  schemas:
+    BairroAgrupado:
+      type: object
+      properties:
+        bairro:
+          type: string
+        total_clientes:
+          type: integer
+      required:
+      - bairro
+      - total_clientes
+    Cliente:
+      type: object
+      properties:
+        id_cliente:
+          type: string
+          readOnly: true
+        razao_social:
+          type: string
+          readOnly: true
+        cnpj:
+          type: string
+          readOnly: true
+          nullable: true
+        telefone:
+          type: string
+          readOnly: true
+          nullable: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        bairro:
+          type: string
+          readOnly: true
+          nullable: true
+        cep:
+          type: string
+          readOnly: true
+          nullable: true
+        cidade:
+          type: string
+          readOnly: true
+        uf:
+          type: string
+          readOnly: true
+        data_cadastro:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        vendedor:
+          type: integer
+          readOnly: true
+        vendedor_nome:
+          type: string
+          readOnly: true
+        status_consulta_cep:
+          type: string
+          readOnly: true
+        comparacao_bairro_cep:
+          type: string
+          readOnly: true
+        ativo:
+          type: boolean
+          readOnly: true
+      required:
+      - ativo
+      - bairro
+      - cep
+      - cidade
+      - cnpj
+      - comparacao_bairro_cep
+      - data_cadastro
+      - email
+      - id_cliente
+      - razao_social
+      - status_consulta_cep
+      - telefone
+      - uf
+      - vendedor
+      - vendedor_nome
+    ClienteEscrita:
+      type: object
+      properties:
+        id_cliente:
+          type: string
+          maxLength: 20
+        razao_social:
+          type: string
+          maxLength: 255
+        cnpj:
+          type: string
+          nullable: true
+          maxLength: 14
+        telefone:
+          type: string
+          nullable: true
+          maxLength: 20
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        bairro:
+          type: string
+          nullable: true
+          maxLength: 150
+        cep:
+          type: string
+          nullable: true
+          maxLength: 12
+        cidade:
+          type: string
+          maxLength: 100
+        uf:
+          type: string
+          maxLength: 2
+        data_cadastro:
+          type: string
+          format: date
+          nullable: true
+        vendedor:
+          type: integer
+      required:
+      - cidade
+      - id_cliente
+      - razao_social
+      - uf
+      - vendedor
+    ConsultaBairro:
+      type: object
+      properties:
+        total_bairros:
+          type: integer
+        total_clientes:
+          type: integer
+        resultados:
+          type: array
+          items:
+            $ref: '#/components/schemas/BairroAgrupado'
+      required:
+      - resultados
+      - total_bairros
+      - total_clientes
+    ConsultaVendedor:
+      type: object
+      properties:
+        total_vendedores:
+          type: integer
+        total_clientes:
+          type: integer
+        resultados:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendedorAgrupado'
+      required:
+      - resultados
+      - total_clientes
+      - total_vendedores
+    ErroConsulta:
+      type: object
+      properties:
+        erro:
+          type: string
+      required:
+      - erro
+    PatchedClienteEscrita:
+      type: object
+      properties:
+        id_cliente:
+          type: string
+          maxLength: 20
+        razao_social:
+          type: string
+          maxLength: 255
+        cnpj:
+          type: string
+          nullable: true
+          maxLength: 14
+        telefone:
+          type: string
+          nullable: true
+          maxLength: 20
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        bairro:
+          type: string
+          nullable: true
+          maxLength: 150
+        cep:
+          type: string
+          nullable: true
+          maxLength: 12
+        cidade:
+          type: string
+          maxLength: 100
+        uf:
+          type: string
+          maxLength: 2
+        data_cadastro:
+          type: string
+          format: date
+          nullable: true
+        vendedor:
+          type: integer
+    PatchedVendedor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nome:
+          type: string
+          maxLength: 150
+        quantidade_clientes:
+          type: string
+          readOnly: true
+    StatusAPI:
+      type: object
+      properties:
+        mensagem:
+          type: string
+        status:
+          type: string
+        versao:
+          type: string
+      required:
+      - mensagem
+      - status
+      - versao
+    Vendedor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nome:
+          type: string
+          maxLength: 150
+        quantidade_clientes:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - nome
+      - quantidade_clientes
+    VendedorAgrupado:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        total_clientes:
+          type: integer
+      required:
+      - id
+      - nome
+      - total_clientes
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
+tags:
+- name: Status
+  description: Verificação do funcionamento da API.
+- name: Clientes
+  description: Gerenciamento dos clientes.
+- name: Vendedores
+  description: Gerenciamento dos vendedores.
+- name: Consultas
+  description: Consultas agrupadas e gerenciais.
