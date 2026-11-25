@@ -899,3 +899,59 @@ O projeto utiliza um ambiente de desenvolvimento local e um conjunto de dados fi
 Uma implantação em produção exigiria infraestrutura adequada, HTTPS, políticas de expiração e revogação de tokens, monitoramento, backups, revisão de dependências e políticas de retenção de auditorias.
 
 As medidas implementadas representam uma base de segurança adequada ao contexto acadêmico, sem substituir uma avaliação completa de segurança para ambientes reais.
+
+## Integração e validação do sistema
+
+O Projeto Primora possui mecanismos de validação destinados a verificar a consistência dos dados entre o processo ETL, o banco de dados PostgreSQL e a API REST.
+
+### Validação dos arquivos
+
+O script `etl/validar_integracao.py` permite comparar os arquivos CSV original e tratado, identificando diferenças entre registros, identificadores duplicados, valores ausentes e agrupamentos.
+
+Exemplo de execução:
+
+```bash
+python etl/validar_integracao.py "caminho_original.csv" "caminho_tratado.csv"
+```
+
+### Validação do banco de dados
+
+Foi desenvolvido o comando personalizado:
+
+```bash
+python manage.py validar_sistema
+```
+
+O comando verifica:
+
+- Existência de clientes e vendedores.
+- Quantidade de clientes ativos e inativos.
+- Integridade do relacionamento entre clientes e vendedores.
+- Consistência dos agrupamentos por bairro e vendedor.
+- Quantidade de registros de auditoria.
+
+O comando realiza exclusivamente operações de leitura.
+
+### Testes de integração
+
+Os testes de integração estão organizados no arquivo `clientes/test_integracao.py`.
+
+Esses testes verificam a comunicação entre a API REST, os modelos, o banco de dados, os serializers, os mecanismos de autenticação e as auditorias.
+
+Para executar os testes de integração:
+
+```bash
+python manage.py test clientes.test_integracao -v 2
+```
+
+Para executar todos os testes da aplicação Django:
+
+```bash
+python manage.py test clientes -v 2
+```
+
+### Evidências de validação
+
+Os resultados das verificações e dos testes podem ser armazenados na pasta `relatorios/`, contribuindo para a documentação técnica e a rastreabilidade do projeto.
+
+Os testes automatizados utilizam um banco de dados de testes separado, evitando alterações nos registros do ambiente de desenvolvimento.

@@ -10,6 +10,10 @@ __pycache__/
 *.pyc
 *.py[cod]
 
+# Backups locais do banco de dados
+backups/
+*.backup
+
 # Banco de dados local
 db.sqlite3
 
