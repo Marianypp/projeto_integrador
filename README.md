@@ -1,52 +1,58 @@
-# Distribuidora Vetor — Desafio Primora
+# Projeto Primora — Distribuidora Vetor
 
-## Orientador
-- Diego Martins de Oliveira
-  https://github.com/diegomo2
-
-## Integrantes
-
-- Felipe Gonçalves Nogueira
-  https://github.com/FelipeGonNog
-- Fernanda Matos Ricarte
-  https://github.com/fernanda-fmr
-- Luiz Davi Oliveira Lima
-  https://github.com/luizdavi007
-- Mariany de Paula Pinto
-  https://github.com/Marianypp
-- Wanderson Chaves Alves
-  https://github.com/WDChavez
+Projeto acadêmico de desenvolvimento backend utilizando Python, Django REST Framework e PostgreSQL, com foco no tratamento, armazenamento e gerenciamento de dados cadastrais.
 
 ## Sobre o projeto
 
-Projeto desenvolvido como atividade final do curso de programação backend com Python e Django.
+O Projeto Primora tem como objetivo desenvolver uma solução para o tratamento dos dados de clientes da Distribuidora Vetor e sua disponibilização por meio de uma API REST.
 
-A solução tem como objetivo realizar o tratamento dos dados de clientes da Distribuidora Vetor, armazená-los em um banco relacional e disponibilizá-los posteriormente por meio de uma API REST.
+O sistema é dividido em duas etapas:
 
-## Tecnologias
+1. Processo ETL para extração, transformação e carga dos dados.
+2. API REST para consulta e gerenciamento das informações armazenadas.
+
+## Funcionalidades
+
+### ETL
+
+- Leitura dos dados originais.
+- Normalização dos campos cadastrais.
+- Tratamento de inconsistências.
+- Enriquecimento com ViaCEP.
+- Registro das transformações.
+- Carga dos dados no PostgreSQL.
+
+### API REST
+
+- CRUD de clientes.
+- CRUD de vendedores.
+- Exclusão lógica de clientes.
+- Consultas agrupadas por bairro e vendedor.
+- Autenticação por token e sessão.
+- Controle de acesso por perfil.
+- Auditoria das operações.
+- Paginação, filtros e pesquisa.
+- Documentação Swagger e ReDoc.
+
+## Tecnologias utilizadas
 
 - Python
 - Pandas
-- Requests
-- PostgreSQL
 - Django
-- Django ORM
-- Psycopg
-- Python-dotenv
-- Unittest
+- Django REST Framework
+- PostgreSQL
+- django-filter
+- drf-spectacular
+- python-dotenv
+- ViaCEP
 - Git e GitHub
 
-## Funcionalidades da primeira etapa
+## Pré-requisitos
 
-- Extração dos dados do CSV original.
-- Normalização de CNPJ, telefone, datas, bairros e CEPs.
-- Enriquecimento geográfico utilizando ViaCEP.
-- Cache de consultas externas.
-- Identificação de divergências e pendências.
-- Geração de auditoria.
-- Persistência dos dados em PostgreSQL.
-- Testes automatizados com mocks.
-- Relatórios de qualidade dos dados.
+- Python em versão compatível com as dependências do projeto.
+- PostgreSQL.
+- Git.
+- Ambiente virtual Python.
 
 ## Instalação
 
@@ -63,31 +69,45 @@ Crie o ambiente virtual:
 python -m venv venv
 ```
 
-Ative o ambiente virtual no Windows:
+Ative o ambiente virtual no Windows CMD:
 
-```powershell
-.\venv\Scripts\Activate.ps1
+```cmd
+venv\Scripts\activate.bat
 ```
 
 Instale as dependências:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-## Configuração do banco
+## Configuração do ambiente
 
-Crie um banco PostgreSQL chamado `distribuidora_vetor` e um usuário autorizado a utilizá-lo.
+Crie o arquivo `.env` a partir do arquivo `.env.example`.
 
-Copie o arquivo `.env.example` para `.env` e configure as credenciais locais.
+No Windows CMD:
 
-```dotenv
-DB_NAME=distribuidora_vetor
-DB_USER=vetor_user
-DB_PASSWORD=SUA_SENHA
-DB_HOST=localhost
-DB_PORT=5432
+```cmd
+copy .env.example .env
 ```
+
+Execute esse comando somente se ainda não existir um arquivo `.env`.
+
+Configure as credenciais do PostgreSQL e as demais variáveis de ambiente conforme o modelo disponibilizado.
+
+Para gerar uma chave secreta do Django:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Insira a chave gerada na variável `SECRET_KEY`.
+
+O arquivo `.env` não deve ser enviado ao GitHub.
+
+## Banco de dados
+
+Crie o banco de dados e o usuário PostgreSQL conforme as configurações definidas no arquivo `.env`.
 
 Execute as migrations:
 
@@ -95,863 +115,140 @@ Execute as migrations:
 python manage.py migrate
 ```
 
-## Dados de entrada
-
-O CSV original deve ser disponibilizado no caminho:
-
-`dados/originais/clientes_distribuidora_vetor.csv`
-
-## Execução do ETL
-
-Para executar o processo utilizando as informações disponíveis no cache:
-
-```bash
-python manage.py executar_etl
-```
-
-Para realizar novas consultas de CEP:
-
-```bash
-python manage.py executar_etl --consultar-ceps
-```
-
-## Relatório de qualidade
-
-```bash
-python -m etl.relatorio_qualidade
-```
-
-## Testes automatizados
-
-Testes do ETL:
-
-```bash
-python -m unittest discover -s etl/tests -v
-```
-
-Testes do banco de dados:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-O usuário PostgreSQL precisa possuir permissão adequada para a criação do banco temporário de testes.
-
-## Arquivos gerados
-
-- `dados/tratados/clientes_final.csv`
-- `relatorios/auditoria_final.csv`
-- `relatorios/pendencias_finais.csv`
-- `relatorios/qualidade_dados.csv`
-
-## Painel administrativo
-
-Crie um superusuário:
+Crie um usuário administrador:
 
 ```bash
 python manage.py createsuperuser
 ```
 
-Inicie o servidor:
+## Execução do ETL
+
+[Preservar ou inserir os comandos reais de execução do ETL e de importação dos dados desenvolvidos nas aulas anteriores.]
+
+## Executando o servidor
 
 ```bash
 python manage.py runserver
 ```
 
-Acesse:
+## Endereços disponíveis
 
-http://127.0.0.1:8000/admin/
+| Serviço      | Endereço                          |
+|--------------|-----------------------------------|
+| Django Admin | http://127.0.0.1:8000/admin/      |
+| Swagger      | http://127.0.0.1:8000/api/docs/   |
+| ReDoc        | http://127.0.0.1:8000/api/redoc/  |
+| OpenAPI      | http://127.0.0.1:8000/api/schema/ |
 
-## Documentação
+## Autenticação e autorização
 
-As regras de normalização, decisões de tratamento e limitações encontram-se na pasta `relatorios`.
+A API utiliza autenticação por token e sessão.
 
-## Status do projeto
-
-Primeira etapa: ETL e persistência em banco relacional — implementação sujeita à validação final dos testes e dos dados.
-
-Segunda etapa: desenvolvimento da API REST com Django REST Framework.
-
-## API REST — Consultas iniciais
-
-A API REST da Distribuidora Vetor utiliza Django REST Framework para disponibilizar os dados tratados e armazenados no PostgreSQL.
-
-### Executando a API
-
-```bash
-python manage.py runserver
-```
-
-A aplicação estará disponível localmente em:
-
-http://127.0.0.1:8000/
-
-### Endpoints implementados
-
-| Método | Endpoint                    | Descrição                                     |
-|--------|-----------------------------|-----------------------------------------------|
-| GET    | /api/status/                | Verifica se a rota de status está respondendo |
-| GET    | /api/clientes/              | Lista os clientes cadastrados                 |
-| GET    | /api/clientes/{id_cliente}/ | Consulta um cliente específico                |
-
-Os endpoints de leitura disponibilizados nesta etapa permitem acesso sem autenticação, conforme a estratégia inicial do projeto.
-
-As operações de cadastro, atualização e exclusão serão implementadas nas etapas seguintes, juntamente com os mecanismos de autenticação e autorização.
-
-### Testes da API
-
-```bash
-python manage.py test clientes.tests.TesteAPIClientes -v 2
-```
-
-Os testes verificam a disponibilidade dos endpoints, a listagem e consulta de clientes, a representação dos vendedores relacionados, o tratamento de recursos inexistentes e a restrição de métodos ainda não implementados.
-
-## API REST — Gerenciamento de Vendedores
-
-Nesta etapa do projeto da Distribuidora Vetor, foi desenvolvido o CRUD de vendedores utilizando Django REST Framework (DRF), permitindo realizar operações de cadastro, consulta, atualização e exclusão dos vendedores responsáveis pelos clientes.
-
-A implementação utiliza `ModelViewSet`, `ModelSerializer` e `DefaultRouter`, facilitando a organização do código e a criação automática das rotas da API.
-
-### Endpoints de vendedores
-
-| Método HTTP | Endpoint                         | Descrição                                       | Acesso      |
-|-------------|----------------------------------|-------------------------------------------------|-------------|
-| GET         | `/api/vendedores/`               | Lista todos os vendedores cadastrados           | Público     |
-| GET         | `/api/vendedores/{id}/`          | Consulta um vendedor pelo identificador         | Público     |
-| POST        | `/api/vendedores/`               | Cadastra um novo vendedor                       | Autenticado |
-| PUT         | `/api/vendedores/{id}/`          | Atualiza os dados de um vendedor                | Autenticado |
-| PATCH       | `/api/vendedores/{id}/`          | Atualiza parcialmente os dados de um vendedor   | Autenticado |
-| DELETE      | `/api/vendedores/{id}/`          | Exclui um vendedor sem clientes vinculados      | Autenticado |
-| GET         | `/api/vendedores/{id}/clientes/` | Lista os clientes ativos vinculados ao vendedor | Público     |
-
-### Relacionamento entre clientes e vendedores
-
-O sistema utiliza um relacionamento de um para muitos (1:N), no qual um vendedor pode ser responsável por vários clientes, enquanto cada cliente possui um vendedor responsável.
-
-Esse relacionamento foi implementado por meio de uma chave estrangeira (`ForeignKey`) no modelo `Cliente`, utilizando `on_delete=models.PROTECT` para preservar a integridade dos dados.
-
-Dessa forma, o sistema impede a exclusão de vendedores que possuem clientes vinculados, inclusive quando esses clientes estão inativos.
-
-### Validação dos dados
-
-O `VendedorSerializer` realiza a validação das informações enviadas à API, incluindo:
-
-- Remoção de espaços desnecessários no nome.
-- Verificação de um mínimo de três caracteres para o nome.
-- Validação de unicidade do nome conforme a restrição do modelo.
-
-Além disso, a API disponibiliza o campo `quantidade_clientes`, que apresenta o total de clientes ativos associados a cada vendedor.
-
-### Consulta de clientes por vendedor
-
-Foi implementada uma ação personalizada com o decorador `@action`, permitindo consultar os clientes ativos de determinado vendedor.
-
-Exemplo de requisição:
-
-`GET /api/vendedores/1/clientes/`
-
-A resposta é apresentada em formato JSON, contendo os clientes ativos vinculados ao vendedor informado.
-
-### Regras de exclusão
-
-A exclusão de vendedores segue as seguintes regras:
-
-- Vendedores sem clientes vinculados podem ser excluídos.
-- Vendedores com clientes vinculados não podem ser excluídos.
-- A tentativa de exclusão de um vendedor com clientes retorna uma mensagem de validação.
-- As operações de escrita exigem autenticação.
-
-Essas regras foram definidas para evitar inconsistências nos relacionamentos e preservar os dados dos clientes.
-
-### Testes automatizados
-
-Foram preparados testes automatizados utilizando `APITestCase`, do Django REST Framework, para verificar:
-
-- Listagem pública de vendedores.
-- Consulta individual de vendedores.
-- Cadastro com autenticação.
-- Bloqueio de cadastro sem autenticação.
-- Validação de nomes inválidos.
-- Atualização dos dados.
-- Exclusão de vendedores sem clientes.
-- Bloqueio de exclusão de vendedores com clientes vinculados.
-- Consulta de clientes por vendedor.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TesteCRUDVendedores -v 2
-```
-
-Para executar todos os testes da aplicação:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Tecnologias utilizadas nesta etapa
-
-- Python
-- Django
-- Django REST Framework
-- PostgreSQL
-- Django ORM
-- Git e GitHub
-
-### Considerações sobre a implementação
-
-O desenvolvimento do CRUD de vendedores permitiu aplicar conceitos de APIs REST, relacionamentos entre tabelas, validação de dados, autenticação, integridade referencial e testes automatizados.
-
-A funcionalidade também contribui para a organização dos dados da Distribuidora Vetor, permitindo consultar os clientes associados a cada vendedor e evitando a exclusão de registros que possuem vínculos com outras entidades.
-
-## Consultas agrupadas — Clientes por bairro e vendedor
-
-Nesta etapa do projeto, foram implementadas consultas agrupadas utilizando o Django ORM e o Django REST Framework.
-
-O objetivo é disponibilizar informações resumidas sobre os clientes da Distribuidora Vetor, permitindo consultar a distribuição dos clientes ativos por bairro normalizado e por vendedor responsável.
-
-### Endpoints
-
-| Método | Endpoint                                | Descrição                           | Acesso  |
-|--------|-----------------------------------------|-------------------------------------|---------|
-| GET    | `/api/consultas/clientes-por-bairro/`   | Agrupa clientes ativos por bairro   | Público |
-| GET    | `/api/consultas/clientes-por-vendedor/` | Agrupa clientes ativos por vendedor | Público |
-
-### Consulta por bairro
-
-O endpoint `/api/consultas/clientes-por-bairro/` retorna a quantidade de clientes ativos agrupados pelo campo `bairro`.
-
-A consulta utiliza `values()`, `annotate()` e `Count()` do Django ORM.
-
-Clientes inativos e clientes sem bairro informado não são incluídos no agrupamento.
-
-É possível utilizar o parâmetro opcional `bairro` para consultar um bairro específico.
-
-Exemplo:
-
-`GET /api/consultas/clientes-por-bairro/?bairro=Águas Claras`
-
-### Consulta por vendedor
-
-O endpoint `/api/consultas/clientes-por-vendedor/` retorna a quantidade de clientes ativos vinculados a cada vendedor.
-
-A consulta utiliza `Count()` com uma condição `Q()` para considerar somente clientes ativos.
-
-Vendedores sem clientes ativos também são apresentados, com total igual a zero.
-
-É possível utilizar o parâmetro opcional `vendedor_id` para consultar um vendedor específico.
-
-Exemplo:
-
-`GET /api/consultas/clientes-por-vendedor/?vendedor_id=1`
-
-### Regras de negócio
-
-- As consultas agrupadas são públicas e aceitam requisições GET.
-- Somente clientes ativos são considerados nas contagens.
-- O agrupamento por bairro utiliza os valores normalizados armazenados no banco de dados.
-- Clientes sem bairro informado não são contabilizados no agrupamento por bairro.
-- Vendedores sem clientes ativos são incluídos na consulta por vendedor.
-- Os filtros são opcionais.
-
-### Testes automatizados
-
-Foram criados testes utilizando `APITestCase` para verificar os agrupamentos, os filtros, a exclusão de clientes inativos das contagens e o acesso público aos endpoints.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TesteConsultasAgrupadas -v 2
-```
-
-Para executar todos os testes da aplicação:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Tecnologias e recursos utilizados
-
-- Python
-- Django
-- Django REST Framework
-- Django ORM
-- PostgreSQL
-- `values()`
-- `annotate()`
-- `Count()`
-- `Q()`
-
-### Considerações
-
-As consultas agrupadas permitem utilizar os dados normalizados durante o ETL para produzir informações gerenciais sobre a distribuição dos clientes.
-
-A implementação demonstra a integração entre tratamento de dados, persistência em banco relacional e disponibilização de informações por uma API REST.
-
-
-## Autenticação e segurança da API
-
-A API REST da Distribuidora Vetor utiliza mecanismos de autenticação do Django REST Framework para proteger operações de escrita.
-
-Nesta etapa, foi configurada a autenticação por token (`TokenAuthentication`), permitindo que usuários cadastrados realizem operações autenticadas em clientes e vendedores.
-
-### Métodos de autenticação
-
-A aplicação utiliza:
-
-- `TokenAuthentication`: autenticação por token enviado no cabeçalho HTTP.
-- `SessionAuthentication`: autenticação por sessão do Django.
-
-### Regras de acesso
-
-| Operação                                  | Permissão           |
-|-------------------------------------------|---------------------|
-| Consultar clientes                        | Pública             |
-| Consultar vendedores                      | Pública             |
-| Consultas agrupadas por bairro e vendedor | Pública             |
-| Cadastrar clientes e vendedores           | Usuário autenticado |
-| Atualizar clientes e vendedores           | Usuário autenticado |
-| Excluir clientes e vendedores             | Usuário autenticado |
-
-### Utilização do token
-
-Para realizar uma operação autenticada, o cliente HTTP deve enviar o cabeçalho:
-
-```http
-Authorization: Token SEU_TOKEN_AQUI
-```
-
-O token deve ser gerado para um usuário existente no Django.
-
-Por questões de segurança, tokens reais não devem ser publicados no repositório.
-
-### Testes de autenticação
-
-Foram implementados testes automatizados para verificar:
-
-- Acesso público às consultas.
-- Bloqueio de operações de escrita sem autenticação.
-- Cadastro utilizando token válido.
-- Rejeição de token inválido.
-- Proteção contra atualização e exclusão não autorizadas.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TesteAutenticacaoAPI -v 2
-```
-
-Para executar todos os testes:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Considerações de segurança
-
-A autenticação por token foi implementada como parte da proteção inicial da API REST.
-
-Em um ambiente de produção, recomenda-se utilizar HTTPS, proteger os tokens e aplicar controles de acesso mais específicos conforme as funções dos usuários.
-
-Também será necessário revisar a exposição pública de informações pessoais de clientes e implementar mecanismos de auditoria das alterações realizadas.
-
-## Documentação da API — Swagger e ReDoc
-
-A API REST da Distribuidora Vetor possui documentação automática gerada pela biblioteca `drf-spectacular`, utilizando a especificação OpenAPI.
-
-A documentação permite visualizar os endpoints disponíveis, os métodos HTTP, os parâmetros de consulta, os formatos das requisições e respostas e os mecanismos de autenticação.
-
-### Acesso à documentação
-
-Após iniciar o servidor Django, as interfaces podem ser acessadas pelos seguintes endereços:
-
-| Interface       | Endereço                          |
-|-----------------|-----------------------------------|
-| Swagger UI      | http://127.0.0.1:8000/api/docs/   |
-| ReDoc           | http://127.0.0.1:8000/api/redoc/  |
-| Esquema OpenAPI | http://127.0.0.1:8000/api/schema/ |
-
-### Organização dos endpoints
-
-A documentação foi organizada em quatro categorias:
-
-- **Status:** verificação do funcionamento da API.
-- **Clientes:** gerenciamento dos clientes cadastrados.
-- **Vendedores:** gerenciamento dos vendedores responsáveis.
-- **Consultas:** agrupamento de clientes por bairro normalizado e vendedor responsável.
-
-### Documentação interativa
-
-O Swagger UI permite executar requisições diretamente pelo navegador, facilitando os testes e a integração com outras aplicações.
-
-As operações de escrita exigem autenticação. Para realizar uma requisição autenticada pelo Swagger, deve-se utilizar o botão `Authorize` e informar a credencial no seguinte formato:
-
-```http
-Token SEU_TOKEN_AQUI
-```
-
-Tokens reais não devem ser publicados no repositório.
-
-### Documentação personalizada
-
-Foram utilizados os decoradores `extend_schema` e `extend_schema_view` para descrever os endpoints, parâmetros, regras de negócio e formatos de resposta.
-
-Também foram criados serializers específicos para representar os resultados das consultas agrupadas.
-
-### Geração do esquema OpenAPI
-
-Para gerar e validar o arquivo de especificação da API:
-
-```bash
-python manage.py spectacular --file schema.yaml --validate
-```
-
-O arquivo `schema.yaml` contém a descrição estruturada dos endpoints e pode ser utilizado por ferramentas compatíveis com OpenAPI.
-
-### Testes automatizados
-
-Foram implementados testes para verificar:
-
-- Disponibilidade do esquema OpenAPI.
-- Disponibilidade do Swagger UI.
-- Disponibilidade do ReDoc.
-- Presença dos principais endpoints na documentação.
-- Documentação dos parâmetros de consulta.
-- Presença do mecanismo de autenticação por token.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TesteDocumentacaoAPI -v 2
-```
-
-Para executar todos os testes da aplicação:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Tecnologias utilizadas
-
-- Python
-- Django
-- Django REST Framework
-- PostgreSQL
-- drf-spectacular
-- OpenAPI
-- Swagger UI
-- ReDoc
-
-### Considerações
-
-A documentação automática contribui para a manutenção, organização e integração da API REST, permitindo que desenvolvedores e avaliadores compreendam e testem as funcionalidades implementadas no Projeto Primora.
-
-## Auditoria e rastreabilidade das operações da API
-
-Nesta etapa do Projeto Primora, foi implementado um mecanismo de auditoria para registrar as operações de criação, atualização, exclusão e inativação realizadas pela API REST da Distribuidora Vetor.
-
-O objetivo é garantir maior rastreabilidade das alterações, permitindo identificar os dados anteriores e posteriores, os campos modificados, o usuário responsável e a data e o horário da operação.
-
-### Modelo de auditoria
-
-Foi criado o modelo `AuditoriaAPI`, responsável pelo armazenamento do histórico das operações realizadas nos endpoints de clientes e vendedores.
-
-Cada registro de auditoria contém:
-
-- Entidade afetada.
-- Identificador do registro.
-- Tipo de operação.
-- Usuário responsável.
-- Nome do usuário no momento da operação.
-- Dados anteriores.
-- Dados posteriores.
-- Campos alterados.
-- Método HTTP.
-- Data e horário do registro.
-
-### Tipos de operações auditadas
-
-| Operação    | Descrição                               |
-|-------------|-----------------------------------------|
-| CRIACAO     | Cadastro de um novo cliente ou vendedor |
-| ATUALIZACAO | Alteração dos dados de um registro      |
-| INATIVACAO  | Exclusão lógica de um cliente           |
-| EXCLUSAO    | Exclusão física de um vendedor          |
-
-Atualizações que não modificam efetivamente os dados não geram novos registros de auditoria.
-
-### Camada de serviços
-
-Foi criado o arquivo `clientes/services.py`, responsável por centralizar as funções de captura de dados, identificação dos campos alterados e registro das auditorias.
-
-Essa organização contribui para a reutilização do código e a separação de responsabilidades.
-
-### Integridade das operações
-
-As operações de alteração e registro de auditoria utilizam `transaction.atomic()`, garantindo que ambas sejam concluídas dentro da mesma transação.
-
-Caso ocorra uma falha durante o registro da auditoria, a alteração correspondente será desfeita.
-
-Também foi utilizado `select_for_update()` para bloquear registros durante determinadas operações de atualização e exclusão.
-
-### Endpoints de auditoria
-
-| Método | Endpoint                | Descrição                       | Acesso        |
-|--------|-------------------------|---------------------------------|---------------|
-| GET    | `/api/auditorias/`      | Lista os registros de auditoria | Administrador |
-| GET    | `/api/auditorias/{id}/` | Consulta um registro específico | Administrador |
-
-### Filtros disponíveis
-
-- `entidade`: Cliente ou Vendedor.
-- `operacao`: tipo de operação realizada.
-- `identificador`: identificador do registro auditado.
-
-Exemplos:
-
-`GET /api/auditorias/?entidade=Cliente`
-
-`GET /api/auditorias/?operacao=ATUALIZACAO`
-
-`GET /api/auditorias/?entidade=Cliente&identificador=CLI001`
-
-### Segurança
-
-Os endpoints de auditoria utilizam `ReadOnlyModelViewSet` e `IsAdminUser`, permitindo somente consultas realizadas por usuários autenticados com `is_staff=True`.
-
-O histórico também está disponível no Django Admin para usuários com permissão de visualização.
-
-A criação manual, a atualização e a exclusão dos registros de auditoria foram bloqueadas nessas interfaces.
-
-### Auditoria do ETL e da API
-
-A auditoria das operações da API foi implementada separadamente da auditoria do ETL.
-
-Enquanto a auditoria do ETL registra as transformações realizadas nos dados originais, a auditoria da API registra as alterações realizadas pelos usuários autenticados.
-
-A implementação atual não contempla alterações realizadas diretamente pelo banco de dados, Django Shell ou edição de clientes e vendedores pelo Django Admin.
-
-### Testes automatizados
-
-Foram implementados testes para verificar:
-
-- Auditoria de cadastro de clientes e vendedores.
-- Auditoria de atualização de clientes e vendedores.
-- Auditoria de inativação de clientes.
-- Auditoria de exclusão de vendedores.
-- Preservação das regras de integridade referencial.
-- Identificação de atualizações sem mudanças efetivas.
-- Controle de acesso ao histórico.
-- Bloqueio de operações de escrita no endpoint de auditoria.
-- Rollback da transação em caso de falha no registro da auditoria.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TesteAuditoriaAPI -v 2
-```
-
-Para executar todos os testes da aplicação:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Considerações
-
-A implementação da auditoria contribui para a rastreabilidade, a integridade e a confiabilidade das informações gerenciadas pela API REST.
-
-Em um ambiente de produção, deverão ser considerados mecanismos adicionais de proteção do histórico, controle de acesso, retenção de dados e adequação à Lei Geral de Proteção de Dados Pessoais (LGPD).
-
-
-## Paginação, filtros, pesquisa e ordenação da API
-
-Nesta etapa do Projeto Primora, foram implementados recursos de paginação, filtragem, pesquisa textual e ordenação dinâmica, com o objetivo de melhorar a eficiência da API REST e facilitar a consulta às informações da Distribuidora Vetor.
-
-### Paginação
-
-A paginação foi implementada utilizando `PageNumberPagination`, do Django REST Framework.
-
-| Recurso                           | Registros por página |
-|-----------------------------------|----------------------|
-| Clientes                          | 10                   |
-| Vendedores                        | 10                   |
-| Clientes vinculados a um vendedor | 10                   |
-| Auditorias da API                 | 20                   |
-
-O parâmetro `page_size` permite personalizar a quantidade de registros por página, respeitando o limite máximo de 100 registros por requisição.
-
-Exemplos:
-
-`GET /api/clientes/?page=2`
-
-`GET /api/clientes/?page_size=5`
-
-As respostas paginadas apresentam os seguintes campos:
-
-- `count`: quantidade total de registros encontrados.
-- `next`: endereço da próxima página.
-- `previous`: endereço da página anterior.
-- `results`: registros da página atual.
-
-### Filtros de clientes
-
-Foi utilizada a biblioteca `django-filter` para implementar filtros personalizados.
-
-| Parâmetro     | Finalidade                             |
-|---------------|----------------------------------------|
-| bairro        | Filtrar pelo bairro normalizado        |
-| cidade        | Filtrar pela cidade                    |
-| uf            | Filtrar pela unidade federativa        |
-| vendedor_id   | Filtrar pelo identificador do vendedor |
-| vendedor_nome | Filtrar pelo nome do vendedor          |
-| cnpj          | Filtrar pelo CNPJ normalizado          |
-| data_inicio   | Definir a data inicial de cadastro     |
-| data_fim      | Definir a data final de cadastro       |
-
-Exemplos:
-
-`GET /api/clientes/?bairro=Taguatinga`
-
-`GET /api/clientes/?vendedor_id=1`
-
-`GET /api/clientes/?data_inicio=2024-01-01&data_fim=2024-12-31`
-
-### Pesquisa textual
-
-A pesquisa textual foi implementada utilizando `SearchFilter`.
-
-Os clientes podem ser pesquisados pela razão social, CNPJ, bairro e nome do vendedor responsável.
-
-Exemplo:
-
-`GET /api/clientes/?search=Silva`
-
-### Ordenação dinâmica
-
-A ordenação foi implementada utilizando `OrderingFilter`.
-
-Exemplos:
-
-`GET /api/clientes/?ordering=razao_social`
-
-`GET /api/clientes/?ordering=-razao_social`
-
-`GET /api/vendedores/?ordering=-total_clientes_ativos,id`
-
-O sinal negativo indica ordenação decrescente.
-
-### Combinação de parâmetros
-
-Os recursos de paginação, filtragem, pesquisa e ordenação podem ser utilizados simultaneamente.
-
-Exemplo:
-
-`GET /api/clientes/?bairro=Taguatinga&ordering=razao_social&page_size=5`
-
-### Consultas de auditoria
-
-As consultas de auditoria também possuem paginação, pesquisa textual e ordenação.
-
-Os filtros de entidade, operação e identificador foram preservados.
-
-O acesso permanece restrito a usuários autenticados com `is_staff=True`.
-
-### Otimização de consultas
-
-Foi utilizado `select_related()` para recuperar os dados dos clientes e vendedores relacionados, reduzindo a ocorrência do problema de consultas N+1.
-
-Também foram preservadas as consultas com `annotate()` e `Count()` para calcular a quantidade de clientes ativos vinculados aos vendedores, evitando o carregamento desnecessário dos registros relacionados.
-
-### Consultas agrupadas
-
-Os endpoints de consultas agrupadas por bairro e vendedor mantêm sua estrutura original de resposta, permitindo consultar os totais consolidados sem paginação.
-
-### Testes automatizados
-
-Foram acrescentados testes para validar:
-
-- Paginação padrão e personalizada.
-- Limite máximo de registros por página.
-- Tratamento de páginas inexistentes.
-- Filtros individuais e combinados.
-- Pesquisa textual.
-- Ordenação dinâmica.
-- Filtros por período de cadastro.
-- Paginação de clientes, vendedores e auditorias.
-- Otimização de consultas ao banco de dados.
-
-Os testes anteriores de listagem foram adaptados à nova estrutura de respostas paginadas.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TestePaginacaoFiltrosAPI -v 2
-```
-
-Para executar todos os testes da aplicação:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Documentação
-
-Os parâmetros de consulta estão disponíveis na documentação interativa Swagger UI:
-
-http://127.0.0.1:8000/api/docs/
-
-Para atualizar o esquema OpenAPI:
-
-```bash
-python manage.py spectacular --file schema.yaml --validate
-```
-
-### Considerações
-
-A implementação desses recursos contribui para a escalabilidade, a organização e a eficiência da API REST, preparando o sistema para trabalhar com volumes maiores de dados e facilitando sua integração com aplicações frontend.
-
-## Segurança e controle de acesso
-
-A API REST do Projeto Primora utiliza autenticação por token, disponibilizada pelo Django REST Framework, e regras personalizadas de autorização para proteger as informações cadastrais da Distribuidora Vetor.
-
-### Perfis de acesso
-
-Foram definidos quatro níveis de acesso:
-
-| Perfil                    | Permissões                                                           |
-|---------------------------|----------------------------------------------------------------------|
-| Visitante                 | Acesso ao status da API, documentação e consultas agrupadas públicas |
-| Usuário autenticado comum | Consulta de clientes e vendedores                                    |
-| Operador                  | Consulta, cadastro, atualização e exclusão de registros              |
-| Administrador             | Gerenciamento de registros e consulta das auditorias                 |
-
-O controle de acesso dos operadores utiliza o sistema de grupos nativo do Django. Os usuários responsáveis pelo gerenciamento dos registros devem pertencer ao grupo `Operadores` ou possuir perfil administrativo.
-
-As operações de exclusão continuam sujeitas às regras de integridade referencial e exclusão lógica.
-
-### Autenticação
-
-A autenticação por token utiliza o seguinte cabeçalho HTTP:
+Para autenticação por token:
 
 `Authorization: Token SEU_TOKEN`
 
-Os tokens são individuais e não devem ser compartilhados ou armazenados no repositório.
+Os perfis de acesso são:
 
-### Proteção das informações
+- Visitante: consultas públicas.
+- Usuário autenticado: consultas cadastrais.
+- Operador: gerenciamento de clientes e vendedores.
+- Administrador: gerenciamento e consulta das auditorias.
 
-As consultas cadastrais de clientes e vendedores exigem autenticação. Os endpoints de consultas agrupadas por bairro e vendedor permanecem públicos, preservando os requisitos de disponibilização de informações consolidadas.
+O grupo `Operadores` deve ser criado no ambiente local e associado aos usuários responsáveis pelas operações de gerenciamento.
 
-As auditorias da API são restritas a usuários com `is_staff=True`.
+## Configuração dos operadores
 
-### Variáveis de ambiente
+Acesse o Django Admin, crie o grupo `Operadores` e associe os usuários autorizados.
 
-As configurações sensíveis são armazenadas em variáveis de ambiente, incluindo a chave secreta do Django e as credenciais do PostgreSQL.
+A criação do token pode ser realizada pelo Django Shell utilizando o modelo Token do Django REST Framework.
 
-O arquivo `.env` não deve ser versionado.
+Os tokens e as senhas não devem ser compartilhados no repositório.
 
-O arquivo `.env.example` disponibiliza um modelo de configuração para os integrantes da equipe, sem incluir credenciais reais.
-
-### Tratamento de erros
-
-Foi implementado um tratamento personalizado das exceções do Django REST Framework, acrescentando informações padronizadas às respostas de erro sem remover os campos de validação existentes.
-
-Os principais códigos HTTP utilizados são:
-
-- 400: dados inválidos ou operação rejeitada.
-- 401: autenticação necessária.
-- 403: acesso não autorizado.
-- 404: recurso não encontrado.
-- 405: método HTTP não permitido.
-
-### Transações e concorrência
-
-As operações de escrita e seus respectivos registros de auditoria utilizam transações atômicas.
-
-O bloqueio de registros com `select_for_update()` auxilia no controle de operações concorrentes, reduzindo o risco de inconsistências durante atualizações e exclusões.
-
-### Organização da arquitetura
-
-Foram criados os módulos `permissions.py` e `exceptions.py`, responsáveis pelas regras de autorização e pelo tratamento de exceções, respectivamente.
-
-A separação de responsabilidades contribui para a manutenção, a legibilidade e a testabilidade da aplicação.
-
-### Testes de segurança
-
-Foram implementados testes automatizados para validar autenticação, autorização, proteção dos endpoints cadastrais, restrição de acesso às auditorias, tratamento de erros e proteção de registros inativos.
-
-Para executar os testes específicos:
-
-```bash
-python manage.py test clientes.tests.TesteSegurancaAPI -v 2
-```
-
-Para executar todos os testes da aplicação:
-
-```bash
-python manage.py test clientes -v 2
-```
-
-### Limitações e melhorias futuras
-
-O projeto utiliza um ambiente de desenvolvimento local e um conjunto de dados fictícios.
-
-Uma implantação em produção exigiria infraestrutura adequada, HTTPS, políticas de expiração e revogação de tokens, monitoramento, backups, revisão de dependências e políticas de retenção de auditorias.
-
-As medidas implementadas representam uma base de segurança adequada ao contexto acadêmico, sem substituir uma avaliação completa de segurança para ambientes reais.
-
-## Integração e validação do sistema
-
-O Projeto Primora possui mecanismos de validação destinados a verificar a consistência dos dados entre o processo ETL, o banco de dados PostgreSQL e a API REST.
-
-### Validação dos arquivos
-
-O script `etl/validar_integracao.py` permite comparar os arquivos CSV original e tratado, identificando diferenças entre registros, identificadores duplicados, valores ausentes e agrupamentos.
-
-Exemplo de execução:
-
-```bash
-python etl/validar_integracao.py "caminho_original.csv" "caminho_tratado.csv"
-```
-
-### Validação do banco de dados
-
-Foi desenvolvido o comando personalizado:
+## Validação do banco de dados
 
 ```bash
 python manage.py validar_sistema
 ```
 
-O comando verifica:
+O comando verifica a consistência dos registros e dos agrupamentos sem modificar os dados armazenados.
 
-- Existência de clientes e vendedores.
-- Quantidade de clientes ativos e inativos.
-- Integridade do relacionamento entre clientes e vendedores.
-- Consistência dos agrupamentos por bairro e vendedor.
-- Quantidade de registros de auditoria.
+## Testes automatizados
 
-O comando realiza exclusivamente operações de leitura.
-
-### Testes de integração
-
-Os testes de integração estão organizados no arquivo `clientes/test_integracao.py`.
-
-Esses testes verificam a comunicação entre a API REST, os modelos, o banco de dados, os serializers, os mecanismos de autenticação e as auditorias.
-
-Para executar os testes de integração:
-
-```bash
-python manage.py test clientes.test_integracao -v 2
-```
-
-Para executar todos os testes da aplicação Django:
+Execute os testes da aplicação Django:
 
 ```bash
 python manage.py test clientes -v 2
 ```
 
-### Evidências de validação
+Execute somente os testes de integração:
 
-Os resultados das verificações e dos testes podem ser armazenados na pasta `relatorios/`, contribuindo para a documentação técnica e a rastreabilidade do projeto.
+```bash
+python manage.py test clientes.test_integracao -v 2
+```
 
-Os testes automatizados utilizam um banco de dados de testes separado, evitando alterações nos registros do ambiente de desenvolvimento.
+Para executar os testes independentes do ETL, utilize o comando correspondente à estrutura de testes do projeto.
+
+## Documentação OpenAPI
+
+Para atualizar e validar o esquema:
+
+```bash
+python manage.py spectacular --file schema.yaml --validate
+```
+
+## Estrutura do projeto
+
+```text
+projeto-primora/
+├── clientes/
+├── config/
+├── dados/
+├── docs/
+├── etl/
+├── relatorios/
+├── .env.example
+├── .gitignore
+├── manage.py
+├── requirements.txt
+├── schema.yaml
+└── README.md
+```
+
+## Documentação técnica
+
+- [Modelo Entidade-Relacionamento](docs/mer.md)
+- [Diagrama Entidade-Relacionamento](docs/der.md)
+- [Dicionário de dados](docs/dicionario_dados.md)
+- [Arquitetura do sistema](docs/arquitetura.md)
+- [Processo ETL](docs/processo_etl.md)
+- [Documentação da API](docs/documentacao_api.md)
+- [Decisões técnicas e trade-offs](docs/decisoes_tecnicas.md)
+- [Relatório técnico](docs/relatorio_tecnico.md)
+- [Relatório de integração](relatorios/validacao_integracao.md)
+
+## Limitações e melhorias futuras
+
+O projeto foi desenvolvido para fins acadêmicos, utilizando um ambiente local.
+
+Como possibilidades de evolução, destacam-se a implementação de frontend, a containerização, a integração contínua, o aprimoramento da autenticação e a implantação em ambiente de produção.
+
+## Integrantes
+- Felipe Gonçalves Nogueira
+  https://github.com/FelipeGonNog
+- Fernanda Matos Ricarte
+  https://github.com/fernanda-fmr
+- Luiz Davi Oliveira Lima
+  https://github.com/luizdavi007
+- Mariany de Paula Pinto
+  https://github.com/Marianypp
+- Wanderson Chaves Alves
+  https://github.com/WDChavez
+
+
+## Finalidade
+
+Projeto desenvolvido para fins educacionais no curso de Programação Backend com Python e Django.
+
+
+
