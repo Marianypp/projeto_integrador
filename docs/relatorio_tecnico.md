@@ -130,7 +130,6 @@ A integração entre o processo ETL, o PostgreSQL e a aplicação Django demonst
 
 Além dos conhecimentos técnicos, o projeto contribuiu para o desenvolvimento de habilidades de resolução de problemas, documentação, testes e trabalho em equipe.
 
-[Complementar a conclusão com os resultados efetivamente confirmados e as eventuais pendências.]
 
 ## 14. Referências
 

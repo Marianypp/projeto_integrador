@@ -42,4 +42,8 @@ Entre as limitações da solução, destacam-se a necessidade de revisão manual
 
 ## 6. Considerações finais
 
-As decisões propostas priorizam a preservação dos registros, a transparência das transformações e a qualidade das informações. A estratégia conservadora procura evitar alterações indevidas e estabelecer uma base relacional adequada para o desenvolvimento da API REST.
+As decisões adotadas buscaram equilibrar automação, qualidade dos dados, simplicidade de implementação e rastreabilidade.
+
+A equipe priorizou a automatização de transformações previsíveis e a preservação das informações em situações ambíguas, reconhecendo que nem todas as inconsistências podem ser resolvidas exclusivamente por meio de código.
+
+Dessa maneira, a solução busca disponibilizar dados mais consistentes para consultas e análises, sem ocultar as limitações existentes na base original.
